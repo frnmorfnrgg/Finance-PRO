@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Meu App Unificado</title>
+    <style>
+        /* Reset básico para mobile */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
+
+        /* Barra de Navegação Inferior (estilo App) */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 65px;
+            background: #ffffff;
+            display: flex;
+            border-top: 1px solid #ddd;
+            z-index: 9999;
+        }
+
+        .tab-btn {
+            flex: 1;
+            border: none;
+            background: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-size: 12px;
+            transition: 0.3s;
+        }
+
+        .tab-btn.active { color: #007bff; font-weight: bold; }
+        .tab-btn i { font-size: 20px; margin-bottom: 4px; }
+
+        /* Containers de conteúdo */
+        .content-container {
+            width: 100%;
+            height: calc(100% - 65px); /* Desconta a altura da barra */
+            display: none;
+        }
+
+        .content-container.active { display: block; }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .header {
+            height: 50px;
+            background: #007bff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header" id="page-title">Meu Financeiro</div>
+
+    <div id="financeiro" class="content-container active">
+        <iframe src="https://frnmorfnrgg.github.io/Meu-financeiro-4/"></iframe>
+    </div>
+
+    <div id="cavalo" class="content-container">
+        <iframe src="https://frnmorfnrgg.github.io/Cavalo/"></iframe>
+    </div>
+
+    <nav class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('financeiro', 'Meu Financeiro', this)">
+            <span>💰</span>
+            <span>Financeiro</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('cavalo', 'Projeto Cavalo', this)">
+            <span>🐎</span>
+            <span>Cavalo</span>
+        </button>
+    </nav>
+
+    <script>
+        function switchTab(tabId, title, btn) {
+            // Esconde todos os conteúdos
+            document.querySelectorAll('.content-container').forEach(el => el.classList.remove('active'));
+            // Remove active de todos os botões
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            // Ativa o selecionado
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+            document.getElementById('page-title').innerText = title;
+        }
+    </script>
+
+</body>
+</html>

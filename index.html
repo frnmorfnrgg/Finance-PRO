@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Financeiro PRO - HUB ULTRA v5.0</title>
+    <title>Financeiro PRO - HUB v5.0</title>
     <style>
         :root {
             --primary: #00ff88;
@@ -13,10 +13,10 @@
             --text: #ffffff;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg-dark); color: var(--text); overflow: hidden; height: 100vh; }
 
-        /* --- HEADER & STATS --- */
+        /* --- CABEÇALHO ÚNICO (SEM DUPLICAÇÃO) --- */
         .header {
             height: 85px; background: #111; display: flex; align-items: center;
             padding: 0 20px; border-bottom: 2px solid var(--primary); justify-content: space-between;
@@ -31,55 +31,18 @@
         .val-lucro { color: var(--primary); }
         .val-inv { color: #ffc107; }
 
-        /* --- BOTÕES --- */
-        .actions-header { display: flex; gap: 10px; align-items: center; }
-        .btn-main {
+        .btn-lancar {
             background: var(--secondary); color: #000; border: none;
             padding: 12px 18px; border-radius: 10px; font-weight: 900; font-size: 11px;
-            cursor: pointer; text-transform: uppercase; box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+            cursor: pointer; text-transform: uppercase;
         }
-        .menu-toggle { width: 35px; height: 35px; background: #222; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .menu-icon { width: 20px; height: 2px; background: #fff; position: relative; }
-        .menu-icon::before, .menu-icon::after { content: ''; position: absolute; width: 20px; height: 2px; background: #fff; left: 0; }
-        .menu-icon::before { top: -6px; } .menu-icon::after { bottom: -6px; }
 
-        /* --- SIDEBAR --- */
-        .sidebar {
-            position: fixed; top: 0; right: -300px; width: 280px; height: 100%;
-            background: #111; z-index: 1000; transition: 0.5s; padding: 90px 20px 20px;
-        }
-        .sidebar.open { right: 0; }
-        .nav-item { display: block; padding: 15px; color: #ddd; text-decoration: none; border-radius: 10px; margin-bottom: 8px; cursor: pointer; }
-        .nav-item.active { background: rgba(0, 255, 136, 0.1); color: var(--primary); border-left: 4px solid var(--primary); }
-
-        /* --- FERRAMENTAS EXTRAS --- */
-        .tool-section { margin-top: 30px; border-top: 1px solid #333; padding-top: 20px; }
-        .tool-title { font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 10px; }
-        .meta-box { background: #1a1a1a; padding: 15px; border-radius: 12px; }
-        .meta-bar-bg { width: 100%; height: 8px; background: #333; border-radius: 4px; margin-top: 10px; overflow: hidden; }
-        .meta-bar-fill { width: 0%; height: 100%; background: var(--primary); transition: 1s; }
-
-        /* --- CONTENT --- */
+        /* --- CONTEÚDO --- */
         .main-view { height: calc(100vh - 85px); position: relative; }
-        .page { position: absolute; width: 100%; height: 100%; display: none; }
-        .page.active { display: block; }
         iframe { width: 100%; height: 100%; border: none; }
-        
-        /* --- TOAST --- */
-        .toast {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: #1a1a1a; border: 1px solid var(--primary); color: white;
-            padding: 15px 30px; border-radius: 50px; z-index: 9999; transition: 0.5s;
-        }
-        .toast.show { transform: translateX(-50%) translateY(0); }
-
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999; }
-        .overlay.active { display: block; }
     </style>
 </head>
 <body>
-
-    <div id="toast" class="toast">🚀 Atualizando Dados...</div>
 
     <header class="header">
         <div class="stats-container">
@@ -93,138 +56,51 @@
             </div>
         </div>
         
-        <div class="actions-header">
-            <button id="btn-master" class="btn-main" onclick="gerenciadorAcao()">Carregando...</button>
-            <div class="menu-toggle" onclick="toggleSidebar()">
-                <div class="menu-icon"></div>
-            </div>
-        </div>
+        <button class="btn-lancar" onclick="sincronizarAutomatico()">🚀 Lançar Saldo</button>
     </header>
 
-    <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
-
-    <nav id="sidebar" class="sidebar">
-        <div class="tool-title">Menu Principal</div>
-        <div class="nav-item active" id="nav-fin" onclick="switchPage('fin')">💰 Meu Financeiro 2</div>
-        <div class="nav-item" id="nav-ia" onclick="switchPage('ia')">🔍 Scanner IA</div>
-
-        <div class="tool-section">
-            <div class="tool-title">Meta Pedro (R$ 5.000)</div>
-            <div class="meta-box">
-                <span id="meta-txt" style="font-size: 10px;">0% Concluído</span>
-                <div class="meta-bar-bg"><div id="meta-fill" class="meta-bar-fill"></div></div>
-            </div>
-            
-            <div class="tool-title" style="margin-top: 20px;">Estatísticas Rápidas</div>
-            <div style="background: #000; padding: 10px; border-radius: 8px; font-size: 11px;">
-                <p>Status: <span style="color: var(--primary);">Conectado</span></p>
-                <p>Última Sinc: <span id="last-sync">--:--</span></p>
-            </div>
-
-            <button onclick="resetarTudo()" style="width: 100%; background: none; border: 1px solid #444; color: #888; padding: 10px; margin-top: 20px; border-radius: 5px; cursor: pointer;">Limpar Histórico</button>
-        </div>
-    </nav>
-
     <main class="main-view">
-        <div id="page-fin" class="page active">
-            <iframe id="iframe-fin" src="https://frnmorfnrgg.github.io/Meu-financeiro-2/"></iframe>
-        </div>
-        <div id="page-ia" class="page">
-            <iframe id="iframe-ia" src="https://frnmorfnrgg.github.io/Cavalo/"></iframe>
-        </div>
+        <iframe id="iframe-ia" src="https://frnmorfnrgg.github.io/Meu-financeiro-2/"></iframe>
     </main>
 
     <script>
-        const META = 5000.00;
-        let app = {
-            view: 'fin',
-            lucro: parseFloat(localStorage.getItem('hub_lucro') || 0),
-            inv: parseFloat(localStorage.getItem('hub_inv') || 0)
-        };
-
-        window.onload = () => { 
-            atualizarUI(); 
-            switchPage('fin'); 
-        };
-
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.getElementById('overlay').classList.toggle('active');
+        // Função para capturar e somar os valores automaticamente do Iframe
+        function sincronizarAutomatico() {
+            // Solicita os dados para a página de escaneamento
+            const frame = document.getElementById('iframe-ia').contentWindow;
+            frame.postMessage({ type: 'requestFullHistory' }, '*');
         }
 
-        function switchPage(p) {
-            app.view = p;
-            document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-            document.getElementById('page-' + p).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('nav-' + p).classList.add('active');
-
-            const btn = document.getElementById('btn-master');
-            btn.innerText = (p === 'ia') ? "📥 Atualizar Hub" : "🚀 Lançar Saldo";
-            
-            if(window.innerWidth < 768 && document.getElementById('sidebar').classList.contains('open')) toggleSidebar();
-        }
-
-        function gerenciadorAcao() {
-            if(app.view === 'ia') {
-                showToast("🔍 Buscando saldos da IA...");
-                document.getElementById('iframe-ia').contentWindow.postMessage({ type: 'requestFullHistory' }, '*');
-            } else {
-                lancarParaFinanceiro();
-            }
-        }
-
-        // --- ESCUTADOR DE MENSAGENS ---
+        // Escutador que recebe os valores somados e atualiza o topo
         window.addEventListener('message', (e) => {
             if (e.data.type === 'sync_history' || e.data.type === 'lancar') {
-                app.lucro = e.data.lucroTotal || 0;
-                app.inv = e.data.invTotal || 0;
-                
-                localStorage.setItem('hub_lucro', app.lucro);
-                localStorage.setItem('hub_inv', app.inv);
-                
-                atualizarUI();
-                lancarParaFinanceiro();
-                showToast("✅ Saldo IA sincronizado com o topo!");
-                
-                const agora = new Date();
-                document.getElementById('last-sync').innerText = 
-                    agora.getHours().toString().padStart(2, '0') + ":" + 
-                    agora.getMinutes().toString().padStart(2, '0');
+                const lucroX = e.data.lucroTotal || 0;
+                const investidoX = e.data.invTotal || 0;
+
+                // Formata e atualiza o "Lucro Total" e "Investido IA"
+                document.getElementById('topo-lucro').innerText = lucroX.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                document.getElementById('topo-inv').innerText = investidoX.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+                // Salva para persistência
+                localStorage.setItem('hub_lucro', lucroX);
+                localStorage.setItem('hub_inv', investidoX);
+
+                // Envia de volta para atualizar o saldo disponível no painel central
+                document.getElementById('iframe-ia').contentWindow.postMessage({
+                    type: 'forceUpdateFinance',
+                    lucro: lucroX,
+                    investido: investidoX
+                }, '*');
             }
         });
 
-        function lancarParaFinanceiro() {
-            document.getElementById('iframe-fin').contentWindow.postMessage({
-                type: 'forceUpdateFinance',
-                lucro: app.lucro,
-                investido: app.inv
-            }, '*');
-        }
-
-        function atualizarUI() {
-            const grana = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('topo-lucro').innerText = grana(app.lucro);
-            document.getElementById('topo-inv').innerText = grana(app.inv);
-
-            const perc = Math.min((app.lucro / META) * 100, 100).toFixed(1);
-            document.getElementById('meta-fill').style.width = perc + "%";
-            document.getElementById('meta-txt').innerText = perc + "% Concluído";
-        }
-
-        function showToast(m) {
-            const t = document.getElementById('toast');
-            t.innerText = m;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
-        }
-
-        function resetarTudo() {
-            if(confirm("Deseja limpar todos os saldos?")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
+        // Carrega valores salvos ao iniciar
+        window.onload = () => {
+            const l = parseFloat(localStorage.getItem('hub_lucro') || 0);
+            const i = parseFloat(localStorage.getItem('hub_inv') || 0);
+            document.getElementById('topo-lucro').innerText = l.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('topo-inv').innerText = i.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        };
     </script>
 </body>
 </html>

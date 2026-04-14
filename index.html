@@ -3,127 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HUB FINANCEIRO</title>
+    <title>HUB IA SCANNER</title>
     <style>
-        :root {
-            --primary: #00ff88;
-            --bg: #0a0a0a;
-            --card: #161616;
-        }
-
+        :root { --primary: #00ff88; --bg: #0a0a0a; --card: #161616; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        
-        /* Resolve a duplicação: O Hub terá o topo e o iframe ocupará o resto */
-        body { 
-            background: var(--bg); 
-            color: white; 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
+        body { background: var(--bg); color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* TOPO ÚNICO - Evita a duplicação */
+        .topo {
+            height: 80px; background: #111; display: flex; align-items: center;
+            padding: 0 15px; border-bottom: 2px solid var(--primary); justify-content: space-between;
         }
-
-        .topo-unico {
-            height: 80px;
-            background: #111;
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-            border-bottom: 2px solid var(--primary);
-            justify-content: space-between;
-            flex-shrink: 0;
-        }
-
-        .grid-saldos { display: flex; gap: 10px; flex: 1; }
-
-        .box-saldo {
-            background: var(--card);
-            padding: 8px 12px;
-            border-radius: 10px;
-            border: 1px solid #333;
-            flex: 1;
-        }
-
-        .tit { font-size: 8px; color: #aaa; text-transform: uppercase; display: block; }
-        .val { font-size: 14px; font-weight: bold; }
-        .lucro-cor { color: var(--primary); }
-        .inv-cor { color: #ffc107; }
+        .stats { display: flex; gap: 10px; flex: 1; }
+        .box { background: var(--card); padding: 8px; border-radius: 10px; border: 1px solid #333; flex: 1; }
+        .label { font-size: 8px; color: #aaa; text-transform: uppercase; }
+        .val { font-size: 14px; font-weight: bold; display: block; }
+        .lucro { color: var(--primary); }
+        .inv { color: #ffc107; }
 
         .btn-lancar {
-            background: var(--primary);
-            color: #000;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-weight: 800;
-            font-size: 10px;
-            cursor: pointer;
-            text-transform: uppercase;
+            background: var(--primary); color: #000; border: none; padding: 10px 15px;
+            border-radius: 8px; font-weight: 800; font-size: 10px; cursor: pointer;
         }
 
-        .area-conteudo { flex: 1; width: 100%; position: relative; }
+        /* ÁREA ONDE A IA APARECE */
+        .area-ia { flex: 1; width: 100%; }
         iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
 
-    <header class="topo-unico">
-        <div class="grid-saldos">
-            <div class="box-saldo">
-                <span class="tit">Lucro Total</span>
-                <span id="txt-lucro" class="val lucro-cor">R$ 0,00</span>
+    <header class="topo">
+        <div class="stats">
+            <div class="box">
+                <span class="label">Lucro Total</span>
+                <span id="h-lucro" class="val lucro">R$ 0,00</span>
             </div>
-            <div class="box-saldo">
-                <span class="tit">Investido IA</span>
-                <span id="txt-inv" class="val inv-cor">R$ 0,00</span>
+            <div class="box">
+                <span class="label">Investido IA</span>
+                <span id="h-inv" class="val inv">R$ 0,00</span>
             </div>
         </div>
-        <button class="btn-lancar" onclick="sincronizar()">🚀 Lançar Saldo</button>
+        <button class="btn-lancar" onclick="sincronizar()">🚀 LANÇAR SALDO</button>
     </header>
 
-    <main class="area-conteudo">
-        <iframe id="iframe-principal" src="https://frnmorfnrgg.github.io/Meu-financeiro-4/"></iframe>
+    <main class="area-ia">
+        <iframe id="frame-ia" src="https://frnmorfnrgg.github.io/Meu-financeiro-4/"></iframe>
     </main>
 
     <script>
         function sincronizar() {
-            const frame = document.getElementById('iframe-principal').contentWindow;
-            // Pede ao site Cavalo para somar os lucros dos registros
+            const frame = document.getElementById('frame-ia').contentWindow;
+            // Comando para a IA somar os cards de lucro
             frame.postMessage({ type: 'requestFullHistory' }, '*');
         }
 
         window.addEventListener('message', (e) => {
-            // Quando o botão verde do Cavalo for apertado ou o Hub pedir os dados
             if (e.data.type === 'sync_history' || e.data.type === 'lancar') {
-                const totalLucro = e.data.lucroTotal || 0;
-                const totalInv = e.data.invTotal || 0;
+                const l = e.data.lucroTotal || 0;
+                const i = e.data.invTotal || 0;
 
-                // Atualiza o topo do Hub
-                document.getElementById('txt-lucro').innerText = 
-                    totalLucro.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                
-                document.getElementById('txt-inv').innerText = 
-                    totalInv.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                document.getElementById('h-lucro').innerText = l.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+                document.getElementById('h-inv').innerText = i.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
 
-                // Salva para persistência
-                localStorage.setItem('h_lucro', totalLucro);
-                localStorage.setItem('h_inv', totalInv);
-                
-                // Manda o saldo atualizado para DENTRO do saldo do Cavalo
-                document.getElementById('iframe-principal').contentWindow.postMessage({
-                    type: 'forceUpdateFinance',
-                    lucro: totalLucro,
-                    investido: totalInv
-                }, '*');
+                localStorage.setItem('l', l);
+                localStorage.setItem('i', i);
             }
         });
 
-        // Carrega o que estava salvo
         window.onload = () => {
-            const l = parseFloat(localStorage.getItem('h_lucro') || 0);
-            const i = parseFloat(localStorage.getItem('h_inv') || 0);
-            document.getElementById('txt-lucro').innerText = l.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('txt-inv').innerText = i.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            const l = parseFloat(localStorage.getItem('l') || 0);
+            const i = parseFloat(localStorage.getItem('i') || 0);
+            document.getElementById('h-lucro').innerText = l.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+            document.getElementById('h-inv').innerText = i.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
         };
     </script>
 </body>

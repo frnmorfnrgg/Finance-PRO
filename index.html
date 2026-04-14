@@ -5,99 +5,133 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Meu App Unificado</title>
     <style>
-        /* Reset básico para mobile */
+        /* Reset e Base */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
+        body, html { height: 100%; font-family: sans-serif; overflow: hidden; background: #000; }
 
-        /* Barra de Navegação Inferior (estilo App) */
-        .tab-bar {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            height: 65px;
-            background: #ffffff;
-            display: flex;
-            border-top: 1px solid #ddd;
-            z-index: 9999;
-        }
-
-        .tab-btn {
-            flex: 1;
-            border: none;
-            background: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #888;
-            font-size: 12px;
-            transition: 0.3s;
-        }
-
-        .tab-btn.active { color: #007bff; font-weight: bold; }
-        .tab-btn i { font-size: 20px; margin-bottom: 4px; }
-
-        /* Containers de conteúdo */
-        .content-container {
-            width: 100%;
-            height: calc(100% - 65px); /* Desconta a altura da barra */
-            display: none;
-        }
-
-        .content-container.active { display: block; }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
+        /* Cabeçalho */
         .header {
-            height: 50px;
-            background: #007bff;
+            height: 60px;
+            background: #1a1a1a;
             color: white;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 0 20px;
+            justify-content:间;
+            position: relative;
+            z-index: 1000;
+            border-bottom: 1px solid #333;
         }
+
+        .title { font-weight: bold; font-size: 18px; flex-grow: 1; }
+
+        /* Botão Menu (Três Barrinhas) */
+        .menu-icon {
+            width: 30px;
+            height: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        .menu-icon span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background-color: white;
+            border-radius: 3px;
+            transition: 0.3s;
+        }
+
+        /* Menu Lateral (Drawer) */
+        .nav-menu {
+            position: fixed;
+            top: 60px;
+            right: -250px; /* Escondido */
+            width: 250px;
+            height: calc(100% - 60px);
+            background: #222;
+            transition: 0.3s;
+            z-index: 999;
+            padding-top: 20px;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+        }
+        .nav-menu.active { right: 0; }
+
+        .nav-link {
+            display: block;
+            padding: 15px 25px;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            border-bottom: 1px solid #333;
+        }
+        .nav-link:active { background: #444; }
+
+        /* Container dos Sites */
+        .content {
+            width: 100%;
+            height: calc(100% - 60px);
+            display: none;
+        }
+        .content.active { display: block; }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        /* Overlay para fechar o menu ao clicar fora */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+        }
+        .overlay.active { display: block; }
     </style>
 </head>
 <body>
 
-    <div class="header" id="page-title">Meu Financeiro</div>
+    <div class="header">
+        <div class="title" id="page-title">Meu Financeiro</div>
+        <div class="menu-icon" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
 
-    <div id="financeiro" class="content-container active">
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <nav class="nav-menu" id="nav-menu">
+        <a href="#" class="nav-link" onclick="switchTab('financeiro', 'Meu Financeiro')">💰 Meu Financeiro</a>
+        <a href="#" class="nav-link" onclick="switchTab('cavalo', 'Projeto Cavalo')">🐎 Projeto Cavalo</a>
+    </nav>
+
+    <div id="financeiro" class="content active">
         <iframe src="https://frnmorfnrgg.github.io/Meu-financeiro-4/"></iframe>
     </div>
 
-    <div id="cavalo" class="content-container">
+    <div id="cavalo" class="content">
         <iframe src="https://frnmorfnrgg.github.io/Cavalo/"></iframe>
     </div>
 
-    <nav class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('financeiro', 'Meu Financeiro', this)">
-            <span>💰</span>
-            <span>Financeiro</span>
-        </button>
-        <button class="tab-btn" onclick="switchTab('cavalo', 'Projeto Cavalo', this)">
-            <span>🐎</span>
-            <span>Cavalo</span>
-        </button>
-    </nav>
-
     <script>
-        function switchTab(tabId, title, btn) {
-            // Esconde todos os conteúdos
-            document.querySelectorAll('.content-container').forEach(el => el.classList.remove('active'));
-            // Remove active de todos os botões
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            
-            // Ativa o selecionado
+        function toggleMenu() {
+            document.getElementById('nav-menu').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function switchTab(tabId, title) {
+            // Esconde conteúdos
+            document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+            // Mostra o selecionado
             document.getElementById(tabId).classList.add('active');
-            btn.classList.add('active');
+            // Atualiza título
             document.getElementById('page-title').innerText = title;
+            // Fecha o menu
+            toggleMenu();
         }
     </script>
 

@@ -21,7 +21,7 @@
         .auth-card input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; outline: none; font-size: 16px; }
         .btn-auth { width: 100%; padding: 18px; border-radius: 12px; border: none; background: var(--neon); color: #000; font-weight: bold; cursor: pointer; }
 
-        /* HEADER E NAVEGAÇÃO */
+        /* HEADER */
         header {
             padding: 15px; background: rgba(10,10,10,0.95); backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
@@ -34,22 +34,27 @@
         .view { display: none; }
         .view.active { display: block; }
 
-        /* CARDS E ESTILOS COMPARTILHADOS */
-        .stat-card { background: var(--card); padding: 12px; border-radius: 15px; border: 1px solid var(--border); text-align: center; margin-bottom: 10px; }
-        .stat-label { font-size: 9px; color: #888; text-transform: uppercase; font-weight: bold; }
+        /* CARDS */
         .wallet-card { background: linear-gradient(135deg, #111 0%, #050505 100%); padding: 20px; border-radius: 15px; border: 1px solid var(--neon); text-align: center; margin-bottom: 15px; }
+        .stat-label { font-size: 9px; color: #888; text-transform: uppercase; font-weight: bold; }
         
+        /* BOTÃO ZERAR SALDO */
+        .btn-zerar {
+            background: rgba(255, 62, 62, 0.1); color: var(--red); border: 1px solid var(--red);
+            padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: bold;
+            margin-top: 10px; cursor: pointer; transition: 0.3s;
+        }
+        .btn-zerar:active { background: var(--red); color: white; }
+
         .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); }
         .input-box { background: #1a1a1a; padding: 10px; border-radius: 12px; border: 1px solid #333; margin-bottom: 10px; }
         .input-box label { display: block; font-size: 9px; color: #888; margin-bottom: 4px; }
         .input-box input { width: 100%; background: transparent; border: none; color: white; outline: none; }
 
-        /* SCANNER IA */
         .scanner-btn { background: #121212; border: 2px dashed #333; border-radius: 20px; padding: 30px 10px; text-align: center; cursor: pointer; margin-bottom: 15px; }
         .loading-box { display: none; margin-top: 15px; color: var(--blue); font-weight: bold; font-size: 0.8rem; }
         .btn-lancar { background: var(--neon); color: #000; border: none; padding: 15px; width: 100%; border-radius: 12px; font-weight: bold; margin-bottom: 15px; display: none; }
 
-        /* ITENS DA LISTA */
         .hist-item { background: #1a1a1a; padding: 15px; border-radius: 15px; margin-bottom: 12px; border: 1px solid #333; position: relative; border-left: 5px solid #ffaa00; }
         .btn-del { position: absolute; right: 10px; top: 10px; color: var(--red); background: none; border: none; font-size: 20px; cursor: pointer; }
         .btn-check { width: 100%; margin-top: 10px; padding: 10px; border-radius: 8px; border: 1px solid var(--neon); background: transparent; color: var(--neon); font-weight: bold; cursor: pointer; }
@@ -62,15 +67,20 @@
         <h1 style="color: var(--neon); margin-bottom: 20px;">Finance PRO</h1>
         <input type="text" id="userField" placeholder="Seu ID">
         <input type="password" id="passField" placeholder="Senha">
-        <button class="btn-auth" onclick="handleLogin()">ENTRAR NO HUB</button>
+        <button class="btn-auth" onclick="handleLogin()">ENTRAR</button>
     </div>
 </div>
 
 <header id="main-header" style="display:none">
     <div class="wallet-card">
-        <span class="stat-label" style="color: var(--neon)">Saldo Disponível (Cofre)</span>
+        <span class="stat-label" style="color: var(--neon)">Saldo Coletado</span>
         <div id="label-carteira" style="font-size: 24px; font-weight: 900; color: #fff; margin: 5px 0;">R$ 0,00</div>
-        <div style="display:flex; gap:10px; justify-content:center">
+        
+        <button class="btn-zerar" onclick="zerarSaldoColetado()">
+            <i class="fas fa-trash-alt"></i> ZERAR SALDO COLETADO
+        </button>
+
+        <div style="display:flex; gap:10px; justify-content:center; margin-top:15px">
             <div class="stat-label">Investido: <span id="label-inv" style="color:var(--blue)">R$ 0,00</span></div>
             <div class="stat-label">Pendente: <span id="label-lucro" style="color:#ffaa00">R$ 0,00</span></div>
         </div>
@@ -82,7 +92,6 @@
 </header>
 
 <div class="container" id="app-content" style="display:none">
-    
     <div id="view-financeiro" class="view active">
         <div class="card">
             <div class="input-box"><label>VALOR (R$)</label><input type="number" id="inp-p" placeholder="0.00"></div>
@@ -103,7 +112,6 @@
         <button id="btn-lancar-ia" class="btn-lancar" onclick="lancarEscaneados()">🚀 LANÇAR TUDO NO FINANCEIRO</button>
         <div id="lista-ia"></div>
     </div>
-
 </div>
 
 <script>
@@ -113,7 +121,6 @@
     let saldoCofre = 0;
     let worker = null;
 
-    // INICIALIZAÇÃO IA
     async function initIA() {
         worker = await Tesseract.createWorker();
         await worker.loadLanguage('eng+por');
@@ -133,6 +140,24 @@
         carregarTudo();
     }
 
+    function zerarSaldoColetado() {
+        Swal.fire({
+            title: 'Zerar Saldo?',
+            text: "Você deseja limpar todo o saldo coletado do cofre?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ff3e3e',
+            confirmButtonText: 'Sim, zerar tudo',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                saldoCofre = 0;
+                salvar();
+                Swal.fire('Zerado!', 'Seu saldo coletado foi resetado.', 'success');
+            }
+        });
+    }
+
     function switchTab(tab) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -140,7 +165,6 @@
         event.currentTarget.classList.add('active');
     }
 
-    // LÓGICA DO SCANNER
     async function processarIA(input) {
         if (!input.files || !input.files[0]) return;
         document.getElementById('loading').style.display = 'block';
@@ -196,10 +220,8 @@
         salvar();
         renderScanner();
         switchTab('financeiro');
-        Swal.fire('Sucesso', 'Registros importados!', 'success');
     }
 
-    // LÓGICA FINANCEIRO
     function adicionarManual() {
         const p = parseFloat(document.getElementById('inp-p').value) || 0;
         const i = parseFloat(document.getElementById('inp-i').value) || 0;

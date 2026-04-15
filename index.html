@@ -3,167 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HUB FINANCEIRO PREMIUM</title>
-    
+    <title>FINANCEIRO PRO | MASTER</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        
-        :root {
-            --primary: #00ff88;
-            --secondary: #00d4ff;
-            --bg: #050505;
-            --glass: rgba(255, 255, 255, 0.02);
-            --border: rgba(255, 255, 255, 0.08);
-        }
-
+        :root { --primary: #00ff88; --bg: #050505; --border: rgba(255, 255, 255, 0.1); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: var(--bg); color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* --- HEADER EXCLUSIVO (SEM DUPLICAÇÃO) --- */
         header {
-            height: 85px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
-            background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border);
-            z-index: 9999;
+            height: 90px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
+            background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(15px); border-bottom: 1px solid var(--border);
         }
+        .stat-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 10px 20px; border-radius: 12px; min-width: 150px; }
+        .label { font-size: 8px; color: #777; text-transform: uppercase; font-weight: 700; }
+        .value { font-size: 18px; font-weight: 800; color: var(--primary); display: block; }
 
-        .stat-group { display: flex; gap: 12px; }
-        .premium-card {
-            background: var(--glass); border: 1px solid var(--border); padding: 10px 18px;
-            border-radius: 12px; min-width: 150px;
-        }
-        .label { font-size: 8px; color: #666; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 2px; display: block; }
-        .value { font-size: 17px; font-weight: 800; color: var(--primary); }
+        .tabs { background: #111; padding: 5px; border-radius: 10px; display: flex; gap: 5px; border: 1px solid var(--border); }
+        .tab-btn { padding: 8px 15px; border: none; background: transparent; color: #555; font-size: 10px; font-weight: 800; cursor: pointer; border-radius: 8px; }
+        .tab-btn.active { background: var(--primary); color: #000; }
 
-        /* --- ABAS DE NAVEGAÇÃO --- */
-        .nav-center {
-            background: #111; padding: 5px; border-radius: 10px; display: flex; gap: 5px; border: 1px solid var(--border);
-        }
-        .tab-item {
-            padding: 10px 16px; border: none; background: transparent; color: #444;
-            font-size: 10px; font-weight: 800; cursor: pointer; border-radius: 8px;
-            text-transform: uppercase; transition: 0.3s;
-        }
-        .tab-item.active { background: var(--primary); color: #000; box-shadow: 0 4px 12px rgba(0, 255, 136, 0.2); }
-
-        /* --- BOTÃO SYNC --- */
-        .btn-sync {
-            background: #fff; color: #000; border: none; padding: 10px 15px; border-radius: 8px;
-            font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.2s;
-        }
-        .btn-sync:active { transform: scale(0.95); }
-
-        /* --- CONTAINER DO CONTEÚDO --- */
-        main { flex: 1; padding: 10px; position: relative; }
-        .view-page {
-            width: 100%; height: 100%; border-radius: 18px; overflow: hidden;
-            border: 1px solid var(--border); display: none; background: #000;
-        }
-        .view-page.active { display: block; animation: slideUp 0.4s ease-out; }
+        main { flex: 1; padding: 10px; }
+        .viewport { width: 100%; height: 100%; border-radius: 15px; overflow: hidden; display: none; border: 1px solid var(--border); }
+        .viewport.active { display: block; }
         iframe { width: 100%; height: 100%; border: none; }
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Custom SweetAlert */
-        .swal-neon { border: 1px solid var(--primary) !important; border-radius: 20px !important; background: #0a0a0a !important; }
+        .btn-update { background: #fff; color: #000; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 800; font-size: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="stat-group">
-            <div class="premium-card">
-                <span class="label">Seu Saldo</span>
-                <span id="hub-lucro" class="value">R$ 0,00</span>
+        <div style="display: flex; gap: 10px;">
+            <div class="stat-card">
+                <span class="label">Saldo Histórico IA</span>
+                <span id="topo-lucro" class="value">R$ 0,00</span>
             </div>
-            <div class="premium-card">
-                <span class="label">Seus Investimentos</span>
-                <span id="hub-inv" class="value" style="color: var(--secondary)">R$ 0,00</span>
+            <div class="stat-card">
+                <span class="label">Investimento IA</span>
+                <span id="topo-inv" class="value" style="color: #00d4ff;">R$ 0,00</span>
             </div>
         </div>
 
-        <nav class="nav-center">
-            <button class="tab-item active" onclick="changeTab('ia', this)">Scanner IA</button>
-            <button class="tab-item" onclick="changeTab('fin', this)">Financeiro</button>
+        <nav class="tabs">
+            <button class="tab-btn active" onclick="switchTab('ia', this)">Scanner IA</button>
+            <button class="tab-btn" onclick="switchTab('fin', this)">Financeiro</button>
         </nav>
 
-        <button class="btn-sync" onclick="triggerSync()">
-            <i class="fas fa-sync-alt"></i> ATUALIZAR
+        <button class="btn-update" onclick="forceSync()">
+            <i class="fas fa-sync"></i> ATUALIZAR
         </button>
     </header>
 
     <main>
-        <div id="page-ia" class="view-page active">
-            <iframe id="iframe-ia" src="https://frnmorfnrgg.github.io/Meu-financeiro-2/"></iframe>
+        <div id="page-ia" class="viewport active">
+            <iframe id="frame-ia" src="https://frnmorfnrgg.github.io/Meu-financeiro-2/"></iframe>
         </div>
-        
-        <div id="page-fin" class="view-page">
-            <iframe id="iframe-fin" src="https://frnmorfnrgg.github.io/Meu-financeiro-4/"></iframe>
+        <div id="page-fin" class="viewport">
+            <iframe id="frame-fin" src="https://frnmorfnrgg.github.io/Meu-financeiro-4/"></iframe>
         </div>
     </main>
 
     <script>
-        function changeTab(page, btn) {
-            document.querySelectorAll('.view-page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
-            document.getElementById('page-' + page).classList.add('active');
+        function switchTab(id, btn) {
+            document.querySelectorAll('.viewport').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('page-' + id).classList.add('active');
             btn.classList.add('active');
         }
 
-        function triggerSync() {
-            const frameIA = document.getElementById('iframe-ia').contentWindow;
-            // Envia um pedido para o site interno calcular os saldos
+        // 1. SOLICITA OS DADOS DO HISTÓRICO
+        function forceSync() {
+            const frameIA = document.getElementById('frame-ia').contentWindow;
             frameIA.postMessage({ type: 'requestFullHistory' }, '*');
         }
 
-        // --- CAPTURA DE DADOS REAIS ---
+        // 2. RECEBE E ATUALIZA
         window.addEventListener('message', (e) => {
-            // Se o site interno enviar os dados calculados
-            if (e.data.lucroTotal !== undefined || e.data.type === 'sync_history') {
+            if (e.data.type === 'sync_history' || e.data.type === 'lancar' || e.data.lucroTotal !== undefined) {
                 const lucro = parseFloat(e.data.lucroTotal || 0);
                 const inv = parseFloat(e.data.invTotal || 0);
-                const format = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                
+                const f = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-                // Atualiza o Topo Master
-                document.getElementById('hub-lucro').innerText = format(lucro);
-                document.getElementById('hub-inv').innerText = format(inv);
+                // Atualiza o visual
+                document.getElementById('topo-lucro').innerText = f(lucro);
+                document.getElementById('topo-inv').innerText = f(inv);
 
-                // Salva no Navegador
-                localStorage.setItem('db_lucro', lucro);
-                localStorage.setItem('db_inv', inv);
+                // Salva para não perder ao dar F5
+                localStorage.setItem('hub_l', lucro);
+                localStorage.setItem('hub_i', inv);
 
-                // Mensagem de Sucesso Bonita
-                Swal.fire({
-                    title: 'Lançamento Concluído!',
-                    html: `
-                        <div style="text-align: left; padding: 5px; font-weight: 800;">
-                            <p style="color: var(--primary); margin-bottom: 10px;">
-                                Seus investimentos: <span style="float: right; color: #fff;">${format(inv)}</span>
-                            </p>
-                            <p style="color: var(--secondary);">
-                                Seu saldo: <span style="float: right; color: #fff;">${format(lucro)}</span>
-                            </p>
-                        </div>
-                    `,
-                    icon: 'success',
-                    iconColor: '#00ff88',
-                    confirmButtonText: 'EXCELENTE',
-                    confirmButtonColor: '#00ff88',
-                    customClass: { popup: 'swal-neon' },
-                    backdrop: `rgba(0,0,0,0.8) blur(5px)`
-                });
+                // Dispara a mensagem bonita
+                if(lucro > 0) {
+                    Swal.fire({
+                        title: 'Saldos Sincronizados!',
+                        html: `<div style="text-align: left;">
+                                <p style="color:#00ff88">Investido: <span style="float:right;color:#fff">${f(inv)}</span></p>
+                                <p style="color:#00d4ff">Lucro: <span style="float:right;color:#fff">${f(lucro)}</span></p>
+                               </div>`,
+                        icon: 'success',
+                        background: '#111',
+                        color: '#fff',
+                        confirmButtonColor: '#00ff88'
+                    });
+                }
             }
         });
 
-        // Carregar dados ao abrir o site
         window.onload = () => {
-            const l = parseFloat(localStorage.getItem('db_lucro') || 0);
-            const i = parseFloat(localStorage.getItem('db_inv') || 0);
-            const format = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('hub-lucro').innerText = format(l);
-            document.getElementById('hub-inv').innerText = format(i);
+            const l = parseFloat(localStorage.getItem('hub_l') || 0);
+            const i = parseFloat(localStorage.getItem('hub_i') || 0);
+            const f = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('topo-lucro').innerText = f(l);
+            document.getElementById('topo-inv').innerText = f(i);
         };
     </script>
 </body>

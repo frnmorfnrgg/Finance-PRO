@@ -17,12 +17,20 @@
             --bg: #050505;
             --glass: rgba(255, 255, 255, 0.03);
             --border: rgba(255, 255, 255, 0.1);
+            --neon: #00ff88; --card: #121212; --blue: #00d4ff; 
+            --purple: #a55eea; --red: #ff3e3e; 
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: var(--bg); color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* HEADER ÚNICO (CORRIGE DUPLICAÇÃO) */
+        /* AUTH SCREEN INTEGRADA */
+        #auth-screen { position: fixed; inset: 0; background: #000; z-index: 10001; display: flex; align-items: center; justify-content: center; }
+        .auth-card { background: #111; padding: 30px; border-radius: 30px; width: 90%; max-width: 380px; text-align: center; border: 1px solid #222; }
+        .auth-card input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; outline: none; }
+        .btn-auth { width: 100%; padding: 18px; border-radius: 12px; border: none; background: var(--neon); color: #000; font-weight: bold; cursor: pointer; }
+
+        /* HEADER ÚNICO */
         header {
             height: 90px; padding: 0 25px; display: flex; align-items: center; justify-content: space-between;
             background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border);
@@ -39,10 +47,7 @@
         .value { font-size: 18px; font-weight: 800; display: block; }
         .p-color { color: var(--primary); }
 
-        /* NAVEGAÇÃO POR ABAS */
-        .nav-tabs {
-            background: #111; padding: 5px; border-radius: 12px; display: flex; gap: 5px; border: 1px solid var(--border);
-        }
+        .nav-tabs { background: #111; padding: 5px; border-radius: 12px; display: flex; gap: 5px; border: 1px solid var(--border); }
         .tab-btn {
             padding: 10px 18px; border: none; background: transparent; color: #555;
             font-size: 10px; font-weight: 800; cursor: pointer; border-radius: 8px;
@@ -50,29 +55,29 @@
         }
         .tab-btn.active { background: var(--primary); color: #000; box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3); }
 
-        /* CONTEÚDO (IFRAMES) */
         main { flex: 1; padding: 15px; position: relative; }
-        .viewport {
-            width: 100%; height: 100%; border-radius: 20px; overflow: hidden;
-            border: 1px solid var(--border); display: none; background: #000;
-        }
+        .viewport { width: 100%; height: 100%; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); display: none; background: #000; }
         .viewport.active { display: block; animation: fadeIn 0.5s ease; }
         iframe { width: 100%; height: 100%; border: none; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* BOTÃO ATUALIZAR */
-        .btn-sync {
-            background: #fff; color: #000; border: none; padding: 12px 20px; border-radius: 10px;
-            font-weight: 800; font-size: 10px; cursor: pointer; text-transform: uppercase;
-        }
-
-        /* ESTILO DA MENSAGEM BONITA (SweetAlert Custom) */
+        .btn-sync { background: #fff; color: #000; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; font-size: 10px; cursor: pointer; text-transform: uppercase; }
         .swal2-popup { border-radius: 20px !important; border: 1px solid var(--primary) !important; font-family: 'Plus Jakarta Sans', sans-serif !important; }
     </style>
 </head>
 <body>
 
+<div id="auth-screen">
+    <div class="auth-card">
+        <h1 style="color: var(--neon); margin-bottom: 20px;">Finance PRO</h1>
+        <input type="text" id="auth-user" placeholder="ID de Usuário">
+        <input type="password" id="auth-pass" placeholder="Senha">
+        <button class="btn-auth" onclick="handleAuth()">ENTRAR</button>
+    </div>
+</div>
+
+<div id="app-content" style="display: none;">
     <header>
         <div class="stats-container">
             <div class="stat-card">
@@ -107,73 +112,99 @@
             <iframe id="frame-fin" src="https://frnmorfnrgg.github.io/Meu-financeiro-4/"></iframe>
         </div>
     </main>
+</div>
 
-    <script>
-        function switchPage(id, btn) {
-            document.querySelectorAll('.viewport').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('page-' + id).classList.add('active');
-            btn.classList.add('active');
-        }
+<script>
+    let currentUser = "";
 
-        // DISPARA A SINCRONIZAÇÃO E MOSTRA A MENSAGEM BONITA
-        function syncAll() {
-            const frameIA = document.getElementById('frame-ia').contentWindow;
-            frameIA.postMessage({ type: 'requestFullHistory' }, '*');
-        }
+    // FUNÇÕES DE AUTENTICAÇÃO INTEGRADAS
+    function handleAuth() {
+        const user = document.getElementById('auth-user').value.trim().toLowerCase();
+        if(!user) return Swal.fire('Erro', 'Digite um ID', 'error');
+        
+        currentUser = user;
+        localStorage.setItem('finance_session', user);
+        
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app-content').style.display = 'block';
+        
+        loadUserStats();
+    }
 
-        window.addEventListener('message', (e) => {
-            if (e.data.type === 'sync_history' || e.data.type === 'lancar') {
-                const lucro = e.data.lucroTotal || 0;
-                const inv = e.data.invTotal || 0;
-                const f = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    function loadUserStats() {
+        const l = parseFloat(localStorage.getItem(currentUser + '_master_lucro')) || 0;
+        const i = parseFloat(localStorage.getItem(currentUser + '_master_inv')) || 0;
+        updateDisplays(l, i);
+    }
 
-                // Atualiza Topo
-                document.getElementById('txt-lucro').innerText = f(lucro);
-                document.getElementById('txt-inv').innerText = f(inv);
+    function updateDisplays(lucro, inv) {
+        const f = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        document.getElementById('txt-lucro').innerText = f(lucro);
+        document.getElementById('txt-inv').innerText = f(inv);
+    }
 
-                // Salva Local
-                localStorage.setItem('master_lucro', lucro);
-                localStorage.setItem('master_inv', inv);
+    function switchPage(id, btn) {
+        document.querySelectorAll('.viewport').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('page-' + id).classList.add('active');
+        btn.classList.add('active');
+    }
 
-                // MENSAGEM BONITA (SUBSTITUI O ALERT CINZA)
-                Swal.fire({
-                    title: 'Lançamento Concluído!',
-                    html: `
-                        <div style="text-align: left; padding: 10px;">
-                            <p style="color: #00ff88; font-weight: 800; margin-bottom: 5px;">
-                                Investido: <span style="float: right; color: #fff;">${f(inv)}</span>
-                            </p>
-                            <p style="color: #00d4ff; font-weight: 800;">
-                                Lucro: <span style="float: right; color: #fff;">${f(lucro)}</span>
-                            </p>
-                        </div>
-                    `,
-                    icon: 'success',
-                    iconColor: '#00ff88',
-                    background: '#0a0a0a',
-                    color: '#fff',
-                    confirmButtonColor: '#00ff88',
-                    confirmButtonText: 'EXCELENTE',
-                    backdrop: `rgba(0,0,0,0.8) blur(8px)`
-                });
+    function syncAll() {
+        const frameIA = document.getElementById('frame-ia').contentWindow;
+        frameIA.postMessage({ type: 'requestFullHistory' }, '*');
+    }
 
-                // Atualiza o Financeiro 4 internamente
-                document.getElementById('frame-fin').contentWindow.postMessage({
-                    type: 'forceUpdateFinance',
-                    lucro: lucro,
-                    investido: inv
-                }, '*');
-            }
-        });
-
-        window.onload = () => {
-            const l = parseFloat(localStorage.getItem('master_lucro') || 0);
-            const i = parseFloat(localStorage.getItem('master_inv') || 0);
+    window.addEventListener('message', (e) => {
+        if (e.data.type === 'sync_history' || e.data.type === 'lancar') {
+            const lucro = e.data.lucroTotal || 0;
+            const inv = e.data.invTotal || 0;
             const f = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('txt-lucro').innerText = f(l);
-            document.getElementById('txt-inv').innerText = f(i);
-        };
-    </script>
+
+            updateDisplays(lucro, inv);
+
+            if(currentUser) {
+                localStorage.setItem(currentUser + '_master_lucro', lucro);
+                localStorage.setItem(currentUser + '_master_inv', inv);
+            }
+
+            Swal.fire({
+                title: 'Lançamento Concluído!',
+                html: `
+                    <div style="text-align: left; padding: 10px;">
+                        <p style="color: #00ff88; font-weight: 800; margin-bottom: 5px;">
+                            Investido: <span style="float: right; color: #fff;">${f(inv)}</span>
+                        </p>
+                        <p style="color: #00d4ff; font-weight: 800;">
+                            Lucro: <span style="float: right; color: #fff;">${f(lucro)}</span>
+                        </p>
+                    </div>
+                `,
+                icon: 'success',
+                iconColor: '#00ff88',
+                background: '#0a0a0a',
+                color: '#fff',
+                confirmButtonColor: '#00ff88',
+                confirmButtonText: 'EXCELENTE',
+                backdrop: `rgba(0,0,0,0.8) blur(8px)`
+            });
+
+            document.getElementById('frame-fin').contentWindow.postMessage({
+                type: 'forceUpdateFinance',
+                lucro: lucro,
+                investido: inv,
+                user: currentUser
+            }, '*');
+        }
+    });
+
+    window.onload = () => {
+        const s = localStorage.getItem('finance_session'); 
+        if(s) { 
+            document.getElementById('auth-user').value = s; 
+            handleAuth(); 
+        } 
+    }
+</script>
 </body>
 </html>

@@ -3,168 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HUB FINANCEIRO PRO</title>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Finance PRO ™ Exclusive</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-
-        :root {
-            --primary: #00ff88;
-            --secondary: #00d4ff;
-            --bg: #000;
-            --border: rgba(255, 255, 255, 0.1);
+        :root { 
+            --neon: #00ff88; --bg: #050505; --card: #121212; --blue: #00d4ff; 
+            --purple: #a55eea; --red: #ff3e3e; --border: rgba(255,255,255,0.1);
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
+        body { background: var(--bg); color: white; overflow-x: hidden; padding-bottom: 30px; }
+        
         /* LOGIN */
         #auth-screen { position: fixed; inset: 0; background: #000; z-index: 10001; display: flex; align-items: center; justify-content: center; }
-        .auth-card { background: #111; padding: 30px; border-radius: 25px; width: 90%; max-width: 350px; text-align: center; border: 1px solid #222; }
+        .auth-card { background: #111; padding: 30px; border-radius: 30px; width: 90%; max-width: 380px; text-align: center; border: 1px solid #222; }
         .auth-card input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; outline: none; font-size: 16px; }
-        .btn-auth { width: 100%; padding: 18px; border-radius: 12px; border: none; background: var(--primary); color: #000; font-weight: bold; cursor: pointer; }
+        .btn-auth { width: 100%; padding: 18px; border-radius: 12px; border: none; background: var(--neon); color: #000; font-weight: bold; cursor: pointer; }
 
-        /* HEADER FIXO */
+        /* CABEÇALHO DE SALDO */
         header {
-            padding: 12px 15px;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid var(--border);
-            z-index: 1000;
+            padding: 20px; background: rgba(10,10,10,0.9); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
         }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .stat-card { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid var(--border); text-align: center; }
+        .stat-label { font-size: 10px; color: #888; text-transform: uppercase; font-weight: bold; display: block; }
+        .stat-value { font-size: 18px; font-weight: 800; margin-top: 5px; }
 
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-        .stat-box { background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 10px; border-radius: 12px; text-align: center; }
-        .stat-box span { display: block; }
-        .stat-label { font-size: 7px; color: #777; text-transform: uppercase; font-weight: 800; }
-        .stat-value { font-size: 14px; font-weight: 800; }
+        /* CONTEÚDO */
+        .container { padding: 20px; max-width: 500px; margin: auto; }
+        .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); }
+        .input-box { background: #1a1a1a; padding: 12px; border-radius: 12px; border: 1px solid #333; margin-bottom: 10px; }
+        .input-box label { display: block; font-size: 10px; color: #888; margin-bottom: 4px; }
+        .input-box input { width: 100%; background: transparent; border: none; color: white; font-size: 16px; outline: none; }
+        
+        .btn-save { width: 100%; background: var(--neon); color: #000; border: none; padding: 15px; border-radius: 12px; font-weight: 800; cursor: pointer; }
 
-        .nav-bar { display: flex; gap: 8px; align-items: center; }
-        .tab-btn {
-            flex: 1; padding: 10px; border: none; background: #111; color: #555;
-            font-size: 10px; font-weight: 800; border-radius: 8px; border: 1px solid var(--border);
+        /* LISTA DE INVESTIMENTOS */
+        .hist-item { 
+            background: #1a1a1a; padding: 15px; border-radius: 15px; margin-bottom: 12px; 
+            border: 1px solid #333; position: relative; border-left: 5px solid var(--neon);
         }
-        .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
+        .btn-del { position: absolute; right: 10px; top: 10px; color: var(--red); background: none; border: none; font-size: 20px; cursor: pointer; }
+        .status-tag { font-size: 10px; padding: 3px 8px; border-radius: 5px; font-weight: bold; text-transform: uppercase; }
+        .pending { background: rgba(255, 170, 0, 0.2); color: #ffaa00; }
+        .received { background: rgba(0, 255, 136, 0.2); color: var(--neon); }
 
-        .btn-sync { background: #fff; border: none; padding: 10px 15px; border-radius: 8px; font-size: 12px; cursor: pointer; }
-
-        /* CONTEÚDO FULL SCREEN */
-        main { flex: 1; width: 100%; position: relative; background: #000; }
-        .viewport { width: 100%; height: 100%; display: none; }
-        .viewport.active { display: block; }
-        iframe { width: 100%; height: 100%; border: none; outline: none; }
-
-        .swal2-popup { border-radius: 20px !important; border: 1px solid var(--primary) !important; background: #0a0a0a !important; color: #fff !important; }
+        .btn-check { width: 100%; margin-top: 10px; padding: 8px; border-radius: 8px; border: 1px solid var(--neon); background: transparent; color: var(--neon); font-weight: bold; font-size: 11px; }
     </style>
 </head>
 <body>
 
 <div id="auth-screen">
     <div class="auth-card">
-        <h1 style="color: var(--primary); margin-bottom: 20px;">Finance PRO</h1>
-        <input type="text" id="auth-user" placeholder="ID de Usuário">
-        <input type="password" id="auth-pass" placeholder="Senha">
-        <button class="btn-auth" onclick="handleAuth()">ACESSAR PAINEL</button>
+        <h1 style="color: var(--neon); margin-bottom: 20px;">Finance PRO</h1>
+        <input type="text" id="user" placeholder="Usuário">
+        <input type="password" id="pass" placeholder="Senha">
+        <button class="btn-auth" onclick="login()">ENTRAR</button>
     </div>
 </div>
 
-<div id="app-content" style="display: none; height: 100vh; flex-direction: column;">
+<div id="app" style="display:none">
     <header>
         <div class="stats-grid">
-            <div class="stat-box">
-                <span class="stat-label">Saldo Histórico</span>
-                <span id="hub-lucro" class="stat-value" style="color: var(--primary);">R$ 0,00</span>
+            <div class="stat-card">
+                <span class="stat-label">Seu Saldo</span>
+                <span id="label-lucro" class="stat-value" style="color: var(--neon)">R$ 0,00</span>
             </div>
-            <div class="stat-box">
-                <span class="stat-label">Investimento</span>
-                <span id="hub-inv" class="stat-value" style="color: var(--secondary);">R$ 0,00</span>
+            <div class="stat-card">
+                <span class="stat-label">Investimentos</span>
+                <span id="label-inv" class="stat-value" style="color: var(--blue)">R$ 0,00</span>
             </div>
-        </div>
-
-        <div class="nav-bar">
-            <button class="tab-btn active" onclick="switchTab('ia', this)">SCANNER IA</button>
-            <button class="tab-btn" onclick="switchTab('fin', this)">MEU FINANCEIRO</button>
-            <button class="btn-sync" onclick="syncData()"><i class="fas fa-sync-alt"></i></button>
         </div>
     </header>
 
-    <main>
-        <div id="tab-ia" class="viewport active">
-            <iframe id="frame-ia" src="https://frnmorfnrgg.github.io/Cavalo/"></iframe>
+    <div class="container">
+        <div class="card">
+            <h3 style="font-size: 14px; margin-bottom: 15px; color: var(--neon)">Novo Registro</h3>
+            <div class="input-box"><label>VALOR INVESTIDO</label><input type="number" id="inp-p" placeholder="0.00"></div>
+            <div class="input-box"><label>TAXA (%)</label><input type="number" id="inp-i" placeholder="0"></div>
+            <div class="input-box"><label>DIAS</label><input type="number" id="inp-n" value="1"></div>
+            <button class="btn-save" onclick="adicionar()">ADICIONAR INVESTIMENTO</button>
         </div>
-        <div id="tab-fin" class="viewport">
-            <iframe id="frame-fin" src="https://frnmorfnrgg.github.io/Meu-financeiro-4/"></iframe>
-        </div>
-    </main>
+
+        <h3 style="font-size: 12px; color: #666; margin: 10px 0;">HISTÓRICO ATIVO</h3>
+        <div id="lista"></div>
+    </div>
 </div>
 
 <script>
     let currentUser = "";
+    let dados = [];
 
-    function handleAuth() {
-        const user = document.getElementById('auth-user').value.trim().toLowerCase();
-        if(!user) return Swal.fire('Erro', 'Informe seu ID', 'error');
-        
-        currentUser = user;
-        localStorage.setItem('finance_session', user);
+    function login() {
+        const u = document.getElementById('user').value.trim().toLowerCase();
+        if(!u) return;
+        currentUser = u;
+        localStorage.setItem('session', u);
         document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('app-content').style.display = 'flex';
+        document.getElementById('app').style.display = 'block';
+        carregar();
+    }
+
+    function adicionar() {
+        const p = parseFloat(document.getElementById('inp-p').value) || 0;
+        const i = parseFloat(document.getElementById('inp-i').value) || 0;
+        const n = parseInt(document.getElementById('inp-n').value) || 1;
+
+        if(p <= 0) return Swal.fire('Erro', 'Insira um valor', 'error');
+
+        const lucro = p * (i/100) * n;
+        const novo = {
+            id: Date.now(),
+            valor: p,
+            lucro: lucro,
+            data: new Date().toLocaleDateString('pt-BR'),
+            recebido: false
+        };
+
+        dados.unshift(novo);
+        salvar();
         
-        loadStats();
+        document.getElementById('inp-p').value = "";
+        Swal.fire({ icon: 'success', title: 'Registrado!', background: '#111', color: '#fff' });
     }
 
-    function switchTab(id, btn) {
-        document.querySelectorAll('.viewport').forEach(v => v.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('tab-' + id).classList.add('active');
-        btn.classList.add('active');
+    function remover(id) {
+        Swal.fire({
+            title: 'Remover?',
+            text: "Deseja excluir este registro?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: var(--red)
+        }).then(r => {
+            if(r.isConfirmed) {
+                dados = dados.filter(d => d.id !== id);
+                salvar();
+            }
+        });
     }
 
-    function syncData() {
-        // Envia comando para a IA ler os dados e devolver para o Hub
-        document.getElementById('frame-ia').contentWindow.postMessage({ type: 'requestFullHistory' }, '*');
-    }
-
-    window.addEventListener('message', (e) => {
-        // Quando a IA ou o Financeiro enviam dados de saldo
-        if (e.data.type === 'sync_history' || e.data.lucroTotal !== undefined) {
-            const lucro = e.data.lucroTotal || 0;
-            const inv = e.data.invTotal || 0;
-            const f = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-            document.getElementById('hub-lucro').innerText = f(lucro);
-            document.getElementById('hub-inv').innerText = f(inv);
-
-            localStorage.setItem(currentUser + '_lucro', lucro);
-            localStorage.setItem(currentUser + '_inv', inv);
-
-            Swal.fire({
-                title: 'Sincronizado!',
-                html: `<div style="text-align:left">Seu Saldo: <span style="float:right">${f(lucro)}</span><br>Investimento: <span style="float:right">${f(inv)}</span></div>`,
-                icon: 'success',
-                confirmButtonColor: '#00ff88'
-            });
+    function marcar(id) {
+        const item = dados.find(d => d.id === id);
+        if(item) {
+            item.recebido = true;
+            salvar();
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Recebido!', showConfirmButton: false, timer: 1500 });
         }
-    });
+    }
 
-    function loadStats() {
-        const l = parseFloat(localStorage.getItem(currentUser + '_lucro') || 0);
-        const i = parseFloat(localStorage.getItem(currentUser + '_inv') || 0);
+    function salvar() {
+        localStorage.setItem(currentUser + '_dados', JSON.stringify(dados));
+        atualizarTela();
+    }
+
+    function carregar() {
+        dados = JSON.parse(localStorage.getItem(currentUser + '_dados')) || [];
+        atualizarTela();
+    }
+
+    function atualizarTela() {
         const f = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        document.getElementById('hub-lucro').innerText = f(l);
-        document.getElementById('hub-inv').innerText = f(i);
+        
+        let totalLucro = 0;
+        let totalInv = 0;
+        
+        const listaHTML = dados.map(item => {
+            totalLucro += item.lucro;
+            totalInv += item.valor;
+
+            return `
+                <div class="hist-item" style="border-left-color: ${item.recebido ? 'var(--neon)' : '#ffaa00'}">
+                    <button class="btn-del" onclick="remover(${item.id})">&times;</button>
+                    <span class="status-tag ${item.recebido ? 'received' : 'pending'}">
+                        ${item.recebido ? 'Investimento Recebido' : 'Aguardando'}
+                    </span>
+                    <div style="margin-top:10px; font-size:14px">
+                        <b>${item.data}</b><br>
+                        <span style="color:#888">Investido: ${f(item.valor)}</span><br>
+                        <span style="color:var(--neon)">Lucro: + ${f(item.lucro)}</span>
+                    </div>
+                    ${!item.recebido ? `<button class="btn-check" onclick="marcar(${item.id})">MARCAR COMO RECEBIDO</button>` : ''}
+                </div>
+            `;
+        }).join('');
+
+        document.getElementById('lista').innerHTML = listaHTML;
+        document.getElementById('label-lucro').innerText = f(totalLucro);
+        document.getElementById('label-inv').innerText = f(totalInv);
     }
 
     window.onload = () => {
-        const session = localStorage.getItem('finance_session');
-        if(session) {
-            document.getElementById('auth-user').value = session;
-            handleAuth();
-        }
-    }
+        const s = localStorage.getItem('session');
+        if(s) { document.getElementById('user').value = s; login(); }
+    };
 </script>
 </body>
 </html>

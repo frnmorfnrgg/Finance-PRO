@@ -15,13 +15,11 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
         body { background: var(--bg); color: white; overflow-x: hidden; min-height: 100vh; }
         
-        /* LOGIN */
         #auth-screen { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; }
         .auth-card { background: #111; padding: 30px; border-radius: 30px; width: 90%; max-width: 380px; text-align: center; border: 1px solid #222; }
         .auth-card input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; outline: none; font-size: 16px; }
         .btn-auth { width: 100%; padding: 18px; border-radius: 12px; border: none; background: var(--neon); color: #000; font-weight: bold; cursor: pointer; }
 
-        /* HEADER */
         header {
             padding: 15px; background: rgba(10,10,10,0.95); backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
@@ -34,17 +32,14 @@
         .view { display: none; }
         .view.active { display: block; }
 
-        /* CARDS */
         .wallet-card { background: linear-gradient(135deg, #111 0%, #050505 100%); padding: 20px; border-radius: 15px; border: 1px solid var(--neon); text-align: center; margin-bottom: 15px; }
         .stat-label { font-size: 9px; color: #888; text-transform: uppercase; font-weight: bold; }
         
-        /* BOTÃO ZERAR SALDO */
         .btn-zerar {
             background: rgba(255, 62, 62, 0.1); color: var(--red); border: 1px solid var(--red);
             padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: bold;
-            margin-top: 10px; cursor: pointer; transition: 0.3s;
+            margin-top: 10px; cursor: pointer;
         }
-        .btn-zerar:active { background: var(--red); color: white; }
 
         .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); }
         .input-box { background: #1a1a1a; padding: 10px; border-radius: 12px; border: 1px solid #333; margin-bottom: 10px; }
@@ -58,6 +53,8 @@
         .hist-item { background: #1a1a1a; padding: 15px; border-radius: 15px; margin-bottom: 12px; border: 1px solid #333; position: relative; border-left: 5px solid #ffaa00; }
         .btn-del { position: absolute; right: 10px; top: 10px; color: var(--red); background: none; border: none; font-size: 20px; cursor: pointer; }
         .btn-check { width: 100%; margin-top: 10px; padding: 10px; border-radius: 8px; border: 1px solid var(--neon); background: transparent; color: var(--neon); font-weight: bold; cursor: pointer; }
+        
+        .date-badge { display: inline-block; background: rgba(0, 212, 255, 0.1); color: var(--blue); padding: 4px 8px; border-radius: 6px; font-size: 11px; margin-top: 8px; font-weight: bold; border: 1px solid rgba(0, 212, 255, 0.2); }
     </style>
 </head>
 <body>
@@ -75,10 +72,7 @@
     <div class="wallet-card">
         <span class="stat-label" style="color: var(--neon)">Saldo Coletado</span>
         <div id="label-carteira" style="font-size: 24px; font-weight: 900; color: #fff; margin: 5px 0;">R$ 0,00</div>
-        
-        <button class="btn-zerar" onclick="zerarSaldoColetado()">
-            <i class="fas fa-trash-alt"></i> ZERAR SALDO COLETADO
-        </button>
+        <button class="btn-zerar" onclick="zerarSaldoColetado()">ZERAR SALDO COLETADO</button>
 
         <div style="display:flex; gap:10px; justify-content:center; margin-top:15px">
             <div class="stat-label">Investido: <span id="label-inv" style="color:var(--blue)">R$ 0,00</span></div>
@@ -129,6 +123,20 @@
     }
     initIA();
 
+    // Função para formatar a data por extenso
+    function formatarDataRecebimento(dataStr, dias) {
+        let partes = dataStr.split('/');
+        let data = new Date(partes[2], partes[1] - 1, partes[0]);
+        data.setDate(data.getDate() + parseInt(dias));
+        
+        const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+        const diaSemana = diasSemana[data.getDay()];
+        const diaMes = data.getDate().toString().padStart(2, '0');
+        const mes = (data.getMonth() + 1).toString().padStart(2, '0');
+
+        return `${diaSemana}, ${diaMes}/${mes}`;
+    }
+
     function handleLogin() {
         const u = document.getElementById('userField').value.trim().toLowerCase();
         if(!u) return;
@@ -143,17 +151,15 @@
     function zerarSaldoColetado() {
         Swal.fire({
             title: 'Zerar Saldo?',
-            text: "Você deseja limpar todo o saldo coletado do cofre?",
+            text: "Deseja limpar o cofre?",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ff3e3e',
-            confirmButtonText: 'Sim, zerar tudo',
-            cancelButtonText: 'Cancelar'
+            confirmButtonText: 'Sim'
         }).then((result) => {
             if (result.isConfirmed) {
                 saldoCofre = 0;
                 salvar();
-                Swal.fire('Zerado!', 'Seu saldo coletado foi resetado.', 'success');
             }
         });
     }
@@ -181,11 +187,15 @@
 
             for (let i = 0; i < valores.length; i += 2) {
                 if (valores[i] && valores[i+1]) {
+                    const prazo = prazos[Math.floor(i/2)] || 1;
+                    const dataIni = datas[Math.floor(i/2)] || new Date().toLocaleDateString('pt-BR');
                     dadosEscaneados.push({
                         id: Date.now() + i,
                         investido: valores[i],
                         lucro: valores[i+1],
-                        data: datas[Math.floor(i/2)] || new Date().toLocaleDateString('pt-BR')
+                        prazo: prazo,
+                        data: dataIni,
+                        previsao: formatarDataRecebimento(dataIni, prazo)
                     });
                 }
             }
@@ -199,9 +209,10 @@
         btn.style.display = dadosEscaneados.length > 0 ? 'block' : 'none';
         document.getElementById('lista-ia').innerHTML = dadosEscaneados.map(item => `
             <div class="card" style="border-left:4px solid var(--blue)">
-                <small>${item.data}</small><br>
+                <small>${item.data} (${item.prazo} dias)</small><br>
                 <b>Investido: R$ ${item.investido.toFixed(2)}</b><br>
-                <b style="color:var(--neon)">Lucro: R$ ${item.lucro.toFixed(2)}</b>
+                <b style="color:var(--neon)">Lucro: R$ ${item.lucro.toFixed(2)}</b><br>
+                <div class="date-badge"><i class="far fa-calendar-alt"></i> Receber em: ${item.previsao}</div>
             </div>
         `).join('');
     }
@@ -213,6 +224,7 @@
                 valor: item.investido,
                 lucro: item.lucro,
                 data: item.data,
+                prazo: item.prazo,
                 recebido: false
             });
         });
@@ -233,6 +245,7 @@
             valor: p,
             lucro: p * (i/100) * n,
             data: new Date().toLocaleDateString('pt-BR'),
+            prazo: n,
             recebido: false
         });
         salvar();
@@ -271,15 +284,22 @@
 
         document.getElementById('lista-financeiro').innerHTML = dadosFinanceiros.map(item => {
             if(!item.recebido) { pLucro += item.lucro; pInv += item.valor; }
+            
+            const previsaoExtenso = formatarDataRecebimento(item.data, item.prazo || 1);
+
             return `
                 <div class="hist-item" style="border-left-color: ${item.recebido ? 'var(--neon)' : '#ffaa00'}">
                     <button class="btn-del" onclick="remover(${item.id})">&times;</button>
                     <small style="color:${item.recebido ? 'var(--neon)' : '#ffaa00'}">
                         ${item.recebido ? '● RECEBIDO' : '● EM OPERAÇÃO'}
                     </small><br>
-                    <small>${item.data}</small><br>
-                    <b>Aporte: ${f(item.valor)}</b> | <b style="color:var(--neon)">+ ${f(item.lucro)}</b>
-                    ${!item.recebido ? `<button class="btn-check" onclick="marcarRecebido(${item.id})">COLETAR LUCRO</button>` : ''}
+                    <small>${item.data} (${item.prazo} dias)</small><br>
+                    <b>Aporte: ${f(item.valor)}</b> | <b style="color:var(--neon)">+ ${f(item.lucro)}</b><br>
+                    
+                    ${!item.recebido ? `
+                        <div class="date-badge"><i class="far fa-calendar-check"></i> Receber em: ${previsaoExtenso}</div>
+                        <button class="btn-check" onclick="marcarRecebido(${item.id})">COLETAR LUCRO</button>
+                    ` : '<div class="date-badge" style="background:rgba(0,255,136,0.1); color:var(--neon); border-color:rgba(0,255,136,0.2)">CONCLUÍDO</div>'}
                 </div>
             `;
         }).join('');

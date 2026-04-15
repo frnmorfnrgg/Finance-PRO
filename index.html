@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FINANCEIRO PRO | EXCLUSIVE</title>
+    <title>HUB FINANCEIRO PRO</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -14,161 +14,88 @@
         :root {
             --primary: #00ff88;
             --secondary: #00d4ff;
-            --bg: #000000; /* Preto absoluto para sumir com bordas */
-            --glass: rgba(255, 255, 255, 0.05);
+            --bg: #000;
             --border: rgba(255, 255, 255, 0.1);
-            --neon: #00ff88;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        
-        /* Ajuste para não ter scroll na página principal */
-        body { 
-            background: var(--bg); 
-            color: #fff; 
-            height: 100vh; 
-            width: 100vw;
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-        }
+        body { background: var(--bg); color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* TELA DE LOGIN ADAPTADA */
+        /* LOGIN */
         #auth-screen { position: fixed; inset: 0; background: #000; z-index: 10001; display: flex; align-items: center; justify-content: center; }
         .auth-card { background: #111; padding: 30px; border-radius: 25px; width: 90%; max-width: 350px; text-align: center; border: 1px solid #222; }
         .auth-card input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; outline: none; font-size: 16px; }
-        .btn-auth { width: 100%; padding: 18px; border-radius: 12px; border: none; background: var(--neon); color: #000; font-weight: bold; cursor: pointer; }
+        .btn-auth { width: 100%; padding: 18px; border-radius: 12px; border: none; background: var(--primary); color: #000; font-weight: bold; cursor: pointer; }
 
-        /* HEADER COMPACTO PARA CELULAR */
+        /* HEADER FIXO */
         header {
-            height: auto; 
-            padding: 10px 15px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px;
-            background: rgba(10, 10, 10, 0.95); 
-            backdrop-filter: blur(15px); 
+            padding: 12px 15px;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(15px);
             border-bottom: 1px solid var(--border);
             z-index: 1000;
         }
 
-        .stats-container { display: flex; gap: 8px; width: 100%; }
-        .stat-card {
-            background: var(--glass); 
-            border: 1px solid var(--border); 
-            padding: 8px 12px;
-            border-radius: 12px; 
-            flex: 1; /* Faz os cards dividirem a tela igual */
-            text-align: center;
-        }
-        .label { font-size: 7px; color: #777; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 2px; }
-        .value { font-size: 14px; font-weight: 800; display: block; }
-        .p-color { color: var(--primary); }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .stat-box { background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 10px; border-radius: 12px; text-align: center; }
+        .stat-box span { display: block; }
+        .stat-label { font-size: 7px; color: #777; text-transform: uppercase; font-weight: 800; }
+        .stat-value { font-size: 14px; font-weight: 800; }
 
-        /* NAVEGAÇÃO LADO A LADO */
-        .header-bottom { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-        .nav-tabs { background: #111; padding: 3px; border-radius: 10px; display: flex; gap: 3px; border: 1px solid var(--border); flex: 1; }
+        .nav-bar { display: flex; gap: 8px; align-items: center; }
         .tab-btn {
-            flex: 1;
-            padding: 8px 5px; 
-            border: none; 
-            background: transparent; 
-            color: #555;
-            font-size: 9px; 
-            font-weight: 800; 
-            cursor: pointer; 
-            border-radius: 7px;
-            text-transform: uppercase; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            gap: 4px;
+            flex: 1; padding: 10px; border: none; background: #111; color: #555;
+            font-size: 10px; font-weight: 800; border-radius: 8px; border: 1px solid var(--border);
         }
-        .tab-btn.active { background: var(--primary); color: #000; }
+        .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
 
-        .btn-sync {
-            background: #fff; 
-            color: #000; 
-            border: none; 
-            padding: 8px 12px; 
-            border-radius: 8px; 
-            font-weight: 800; 
-            font-size: 9px; 
-            text-transform: uppercase;
-        }
+        .btn-sync { background: #fff; border: none; padding: 10px 15px; border-radius: 8px; font-size: 12px; cursor: pointer; }
 
-        /* MAIN OCUPANDO TUDO SEM ESPAÇOS PRETOS */
-        main { 
-            flex: 1; 
-            width: 100%;
-            height: 100%;
-            position: relative; 
-            background: #000;
-        }
-        
-        .viewport { 
-            width: 100%; 
-            height: 100%; 
-            display: none; 
-        }
+        /* CONTEÚDO FULL SCREEN */
+        main { flex: 1; width: 100%; position: relative; background: #000; }
+        .viewport { width: 100%; height: 100%; display: none; }
         .viewport.active { display: block; }
-        
-        /* Ajuste do Iframe para não ter bordas e ser full screen */
-        iframe { 
-            width: 100%; 
-            height: 100%; 
-            border: none; 
-            display: block;
-        }
+        iframe { width: 100%; height: 100%; border: none; outline: none; }
 
-        /* SweetAlert Custom */
-        .swal2-popup { border-radius: 20px !important; border: 1px solid var(--primary) !important; font-size: 14px !important; }
+        .swal2-popup { border-radius: 20px !important; border: 1px solid var(--primary) !important; background: #0a0a0a !important; color: #fff !important; }
     </style>
 </head>
 <body>
 
 <div id="auth-screen">
     <div class="auth-card">
-        <h1 style="color: var(--neon); margin-bottom: 20px; font-size: 24px;">Finance PRO</h1>
+        <h1 style="color: var(--primary); margin-bottom: 20px;">Finance PRO</h1>
         <input type="text" id="auth-user" placeholder="ID de Usuário">
         <input type="password" id="auth-pass" placeholder="Senha">
-        <button class="btn-auth" onclick="handleAuth()">ENTRAR</button>
+        <button class="btn-auth" onclick="handleAuth()">ACESSAR PAINEL</button>
     </div>
 </div>
 
 <div id="app-content" style="display: none; height: 100vh; flex-direction: column;">
     <header>
-        <div class="stats-container">
-            <div class="stat-card">
-                <span class="label">Saldo Histórico</span>
-                <span id="txt-lucro" class="value p-color">R$ 0,00</span>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <span class="stat-label">Saldo Histórico</span>
+                <span id="hub-lucro" class="stat-value" style="color: var(--primary);">R$ 0,00</span>
             </div>
-            <div class="stat-card">
-                <span class="label">Investimento</span>
-                <span id="txt-inv" class="value" style="color:var(--secondary)">R$ 0,00</span>
+            <div class="stat-box">
+                <span class="stat-label">Investimento</span>
+                <span id="hub-inv" class="stat-value" style="color: var(--secondary);">R$ 0,00</span>
             </div>
         </div>
 
-        <div class="header-bottom">
-            <nav class="nav-tabs">
-                <button class="tab-btn active" onclick="switchPage('ia', this)">
-                    <i class="fas fa-robot"></i> Cavalo
-                </button>
-                <button class="tab-btn" onclick="switchPage('fin', this)">
-                    <i class="fas fa-wallet"></i> Financeiro
-                </button>
-            </nav>
-            <button class="btn-sync" onclick="syncAll()">
-                <i class="fas fa-sync"></i>
-            </button>
+        <div class="nav-bar">
+            <button class="tab-btn active" onclick="switchTab('ia', this)">SCANNER IA</button>
+            <button class="tab-btn" onclick="switchTab('fin', this)">MEU FINANCEIRO</button>
+            <button class="btn-sync" onclick="syncData()"><i class="fas fa-sync-alt"></i></button>
         </div>
     </header>
 
     <main>
-        <div id="page-ia" class="viewport active">
+        <div id="tab-ia" class="viewport active">
             <iframe id="frame-ia" src="https://frnmorfnrgg.github.io/Cavalo/"></iframe>
         </div>
-        <div id="page-fin" class="viewport">
+        <div id="tab-fin" class="viewport">
             <iframe id="frame-fin" src="https://frnmorfnrgg.github.io/Meu-financeiro-4/"></iframe>
         </div>
     </main>
@@ -179,72 +106,64 @@
 
     function handleAuth() {
         const user = document.getElementById('auth-user').value.trim().toLowerCase();
-        if(!user) return Swal.fire('Erro', 'Digite um ID', 'error');
+        if(!user) return Swal.fire('Erro', 'Informe seu ID', 'error');
+        
         currentUser = user;
         localStorage.setItem('finance_session', user);
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('app-content').style.display = 'flex';
-        loadUserStats();
+        
+        loadStats();
     }
 
-    function loadUserStats() {
-        const l = parseFloat(localStorage.getItem(currentUser + '_master_lucro')) || 0;
-        const i = parseFloat(localStorage.getItem(currentUser + '_master_inv')) || 0;
-        updateDisplays(l, i);
-    }
-
-    function updateDisplays(lucro, inv) {
-        const f = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        document.getElementById('txt-lucro').innerText = f(lucro);
-        document.getElementById('txt-inv').innerText = f(inv);
-    }
-
-    function switchPage(id, btn) {
+    function switchTab(id, btn) {
         document.querySelectorAll('.viewport').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('page-' + id).classList.add('active');
+        document.getElementById('tab-' + id).classList.add('active');
         btn.classList.add('active');
     }
 
-    function syncAll() {
-        const frameIA = document.getElementById('frame-ia').contentWindow;
-        frameIA.postMessage({ type: 'requestFullHistory' }, '*');
+    function syncData() {
+        // Envia comando para a IA ler os dados e devolver para o Hub
+        document.getElementById('frame-ia').contentWindow.postMessage({ type: 'requestFullHistory' }, '*');
     }
 
     window.addEventListener('message', (e) => {
-        if (e.data.type === 'sync_history' || e.data.type === 'lancar') {
+        // Quando a IA ou o Financeiro enviam dados de saldo
+        if (e.data.type === 'sync_history' || e.data.lucroTotal !== undefined) {
             const lucro = e.data.lucroTotal || 0;
             const inv = e.data.invTotal || 0;
             const f = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-            updateDisplays(lucro, inv);
-            if(currentUser) {
-                localStorage.setItem(currentUser + '_master_lucro', lucro);
-                localStorage.setItem(currentUser + '_master_inv', inv);
-            }
+            document.getElementById('hub-lucro').innerText = f(lucro);
+            document.getElementById('hub-inv').innerText = f(inv);
+
+            localStorage.setItem(currentUser + '_lucro', lucro);
+            localStorage.setItem(currentUser + '_inv', inv);
 
             Swal.fire({
-                title: 'Lançamento OK!',
-                html: `<div style="text-align: left; font-size: 14px;">
-                        <p style="color: #00ff88;">Seus investimentos: <span style="float: right; color: #fff;">${f(inv)}</span></p>
-                        <p style="color: #00d4ff;">Seu saldo: <span style="float: right; color: #fff;">${f(lucro)}</span></p>
-                      </div>`,
+                title: 'Sincronizado!',
+                html: `<div style="text-align:left">Seu Saldo: <span style="float:right">${f(lucro)}</span><br>Investimento: <span style="float:right">${f(inv)}</span></div>`,
                 icon: 'success',
-                background: '#0a0a0a',
-                color: '#fff',
-                confirmButtonColor: '#00ff88',
-                confirmButtonText: 'OK',
-                backdrop: `rgba(0,0,0,0.8) blur(5px)`
+                confirmButtonColor: '#00ff88'
             });
         }
     });
 
+    function loadStats() {
+        const l = parseFloat(localStorage.getItem(currentUser + '_lucro') || 0);
+        const i = parseFloat(localStorage.getItem(currentUser + '_inv') || 0);
+        const f = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        document.getElementById('hub-lucro').innerText = f(l);
+        document.getElementById('hub-inv').innerText = f(i);
+    }
+
     window.onload = () => {
-        const s = localStorage.getItem('finance_session'); 
-        if(s) { 
-            document.getElementById('auth-user').value = s; 
-            handleAuth(); 
-        } 
+        const session = localStorage.getItem('finance_session');
+        if(session) {
+            document.getElementById('auth-user').value = session;
+            handleAuth();
+        }
     }
 </script>
 </body>

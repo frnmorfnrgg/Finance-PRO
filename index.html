@@ -9,18 +9,18 @@
     <style>
         :root { 
             --neon: #00ff88; --bg: #050505; --card: #121212; --blue: #00d4ff; 
-            --purple: #a55eea; --red: #ff3e3e; --border: rgba(255,255,255,0.1);
+            --red: #ff3e3e; --border: rgba(255,255,255,0.1);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
-        body { background: var(--bg); color: white; overflow-x: hidden; padding-bottom: 30px; }
+        body { background: var(--bg); color: white; overflow-x: hidden; padding-bottom: 30px; min-height: 100vh; }
         
-        /* LOGIN */
-        #auth-screen { position: fixed; inset: 0; background: #000; z-index: 10001; display: flex; align-items: center; justify-content: center; }
+        /* LOGIN - CORREÇÃO DE Z-INDEX */
+        #auth-screen { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; }
         .auth-card { background: #111; padding: 30px; border-radius: 30px; width: 90%; max-width: 380px; text-align: center; border: 1px solid #222; }
         .auth-card input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; outline: none; font-size: 16px; }
-        .btn-auth { width: 100%; padding: 18px; border-radius: 12px; border: none; background: var(--neon); color: #000; font-weight: bold; cursor: pointer; }
+        .btn-auth { width: 100%; padding: 18px; border-radius: 12px; border: none; background: var(--neon); color: #000; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
-        /* CABEÇALHO DE SALDO */
+        /* CABEÇALHO */
         header {
             padding: 20px; background: rgba(10,10,10,0.9); backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
@@ -39,27 +39,28 @@
         
         .btn-save { width: 100%; background: var(--neon); color: #000; border: none; padding: 15px; border-radius: 12px; font-weight: 800; cursor: pointer; }
 
-        /* LISTA DE INVESTIMENTOS */
+        /* LISTA */
         .hist-item { 
             background: #1a1a1a; padding: 15px; border-radius: 15px; margin-bottom: 12px; 
-            border: 1px solid #333; position: relative; border-left: 5px solid var(--neon);
+            border: 1px solid #333; position: relative; border-left: 5px solid #ffaa00;
         }
-        .btn-del { position: absolute; right: 10px; top: 10px; color: var(--red); background: none; border: none; font-size: 20px; cursor: pointer; }
+        .btn-del { position: absolute; right: 10px; top: 10px; color: var(--red); background: none; border: none; font-size: 22px; cursor: pointer; padding: 5px; }
         .status-tag { font-size: 10px; padding: 3px 8px; border-radius: 5px; font-weight: bold; text-transform: uppercase; }
-        .pending { background: rgba(255, 170, 0, 0.2); color: #ffaa00; }
-        .received { background: rgba(0, 255, 136, 0.2); color: var(--neon); }
+        .pending { background: rgba(255, 170, 0, 0.15); color: #ffaa00; }
+        .received { background: rgba(0, 255, 136, 0.15); color: var(--neon); }
 
-        .btn-check { width: 100%; margin-top: 10px; padding: 8px; border-radius: 8px; border: 1px solid var(--neon); background: transparent; color: var(--neon); font-weight: bold; font-size: 11px; }
+        .btn-check { width: 100%; margin-top: 12px; padding: 10px; border-radius: 8px; border: 1px solid var(--neon); background: transparent; color: var(--neon); font-weight: bold; font-size: 11px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="auth-screen">
     <div class="auth-card">
-        <h1 style="color: var(--neon); margin-bottom: 20px;">Finance PRO</h1>
-        <input type="text" id="user" placeholder="Usuário">
-        <input type="password" id="pass" placeholder="Senha">
-        <button class="btn-auth" onclick="login()">ENTRAR</button>
+        <h1 style="color: var(--neon); margin-bottom: 10px; font-size: 28px;">Finance PRO</h1>
+        <p style="color: #666; font-size: 12px; margin-bottom: 20px;">Acesso Exclusivo</p>
+        <input type="text" id="userField" placeholder="Digite seu ID">
+        <input type="password" id="passField" placeholder="Senha">
+        <button class="btn-auth" id="loginBtn" onclick="handleLogin()">ENTRAR NO PAINEL</button>
     </div>
 </div>
 
@@ -67,11 +68,11 @@
     <header>
         <div class="stats-grid">
             <div class="stat-card">
-                <span class="stat-label">Seu Saldo</span>
+                <span class="stat-label">Saldo de Lucros</span>
                 <span id="label-lucro" class="stat-value" style="color: var(--neon)">R$ 0,00</span>
             </div>
             <div class="stat-card">
-                <span class="stat-label">Investimentos</span>
+                <span class="stat-label">Total Investido</span>
                 <span id="label-inv" class="stat-value" style="color: var(--blue)">R$ 0,00</span>
             </div>
         </div>
@@ -79,14 +80,18 @@
 
     <div class="container">
         <div class="card">
-            <h3 style="font-size: 14px; margin-bottom: 15px; color: var(--neon)">Novo Registro</h3>
-            <div class="input-box"><label>VALOR INVESTIDO</label><input type="number" id="inp-p" placeholder="0.00"></div>
-            <div class="input-box"><label>TAXA (%)</label><input type="number" id="inp-i" placeholder="0"></div>
-            <div class="input-box"><label>DIAS</label><input type="number" id="inp-n" value="1"></div>
-            <button class="btn-save" onclick="adicionar()">ADICIONAR INVESTIMENTO</button>
+            <h3 style="font-size: 14px; margin-bottom: 15px; color: var(--neon)">Registrar Scanner</h3>
+            <div class="input-box"><label>VALOR DO APORTE (R$)</label><input type="number" id="inp-p" placeholder="0.00"></div>
+            <div class="input-box"><label>TAXA DE RETORNO (%)</label><input type="number" id="inp-i" placeholder="0"></div>
+            <div class="input-box"><label>DIAS DE OPERAÇÃO</label><input type="number" id="inp-n" value="1"></div>
+            <button class="btn-save" onclick="adicionarRegistro()">LANÇAR INVESTIMENTO</button>
         </div>
 
-        <h3 style="font-size: 12px; color: #666; margin: 10px 0;">HISTÓRICO ATIVO</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 15px 5px;">
+            <h3 style="font-size: 12px; color: #888;">HISTÓRICO DE SCANNER</h3>
+            <button onclick="logout()" style="background: none; border: none; color: #555; font-size: 10px; font-weight: bold;">SAIR</button>
+        </div>
+        
         <div id="lista"></div>
     </div>
 </div>
@@ -95,107 +100,127 @@
     let currentUser = "";
     let dados = [];
 
-    function login() {
-        const u = document.getElementById('user').value.trim().toLowerCase();
-        if(!u) return;
+    // FUNÇÃO DE LOGIN CORRIGIDA
+    function handleLogin() {
+        const u = document.getElementById('userField').value.trim().toLowerCase();
+        if(!u) {
+            Swal.fire('Atenção', 'Digite seu usuário para entrar', 'warning');
+            return;
+        }
+        
         currentUser = u;
-        localStorage.setItem('session', u);
+        localStorage.setItem('finance_session_active', u);
+        
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('app').style.display = 'block';
-        carregar();
+        carregarDados();
     }
 
-    function adicionar() {
+    function adicionarRegistro() {
         const p = parseFloat(document.getElementById('inp-p').value) || 0;
         const i = parseFloat(document.getElementById('inp-i').value) || 0;
         const n = parseInt(document.getElementById('inp-n').value) || 1;
 
-        if(p <= 0) return Swal.fire('Erro', 'Insira um valor', 'error');
+        if(p <= 0) return Swal.fire('Erro', 'Insira o valor do investimento', 'error');
 
-        const lucro = p * (i/100) * n;
+        const lucroCalculado = p * (i/100) * n;
         const novo = {
             id: Date.now(),
             valor: p,
-            lucro: lucro,
+            lucro: lucroCalculado,
             data: new Date().toLocaleDateString('pt-BR'),
             recebido: false
         };
 
         dados.unshift(novo);
-        salvar();
+        salvarEDesenhar();
         
         document.getElementById('inp-p').value = "";
-        Swal.fire({ icon: 'success', title: 'Registrado!', background: '#111', color: '#fff' });
+        Swal.fire({ icon: 'success', title: 'Lançamento OK', background: '#111', color: '#fff', timer: 1500, showConfirmButton: false });
     }
 
-    function remover(id) {
+    function removerRegistro(id) {
         Swal.fire({
             title: 'Remover?',
-            text: "Deseja excluir este registro?",
+            text: "Excluir este registro permanentemente?",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: var(--red)
+            confirmButtonColor: '#ff3e3e',
+            confirmButtonText: 'Sim, excluir'
         }).then(r => {
             if(r.isConfirmed) {
                 dados = dados.filter(d => d.id !== id);
-                salvar();
+                salvarEDesenhar();
             }
         });
     }
 
-    function marcar(id) {
+    function marcarRecebido(id) {
         const item = dados.find(d => d.id === id);
         if(item) {
             item.recebido = true;
-            salvar();
-            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Recebido!', showConfirmButton: false, timer: 1500 });
+            salvarEDesenhar();
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Status: Recebido', showConfirmButton: false, timer: 1500 });
         }
     }
 
-    function salvar() {
-        localStorage.setItem(currentUser + '_dados', JSON.stringify(dados));
-        atualizarTela();
+    function salvarEDesenhar() {
+        localStorage.setItem(currentUser + '_finance_data', JSON.stringify(dados));
+        desenharTela();
     }
 
-    function carregar() {
-        dados = JSON.parse(localStorage.getItem(currentUser + '_dados')) || [];
-        atualizarTela();
+    function carregarDados() {
+        dados = JSON.parse(localStorage.getItem(currentUser + '_finance_data')) || [];
+        desenharTela();
     }
 
-    function atualizarTela() {
+    function desenharTela() {
         const f = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         
-        let totalLucro = 0;
-        let totalInv = 0;
+        let tLucro = 0;
+        let tInv = 0;
         
-        const listaHTML = dados.map(item => {
-            totalLucro += item.lucro;
-            totalInv += item.valor;
+        const html = dados.map(item => {
+            tLucro += item.lucro;
+            tInv += item.valor;
 
             return `
                 <div class="hist-item" style="border-left-color: ${item.recebido ? 'var(--neon)' : '#ffaa00'}">
-                    <button class="btn-del" onclick="remover(${item.id})">&times;</button>
+                    <button class="btn-del" onclick="removerRegistro(${item.id})">&times;</button>
                     <span class="status-tag ${item.recebido ? 'received' : 'pending'}">
-                        ${item.recebido ? 'Investimento Recebido' : 'Aguardando'}
+                        ${item.recebido ? '<i class="fas fa-check-circle"></i> Recebido' : '<i class="fas fa-clock"></i> Pendente'}
                     </span>
-                    <div style="margin-top:10px; font-size:14px">
-                        <b>${item.data}</b><br>
-                        <span style="color:#888">Investido: ${f(item.valor)}</span><br>
-                        <span style="color:var(--neon)">Lucro: + ${f(item.lucro)}</span>
+                    <div style="margin-top:12px; font-size:14px">
+                        <b style="color:#fff">${item.data}</b><br>
+                        <div style="display:flex; justify-content:space-between; margin-top:5px">
+                            <span style="color:#888">Aporte:</span> <span>${f(item.valor)}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span style="color:var(--neon)">Lucro:</span> <span style="color:var(--neon)">+ ${f(item.lucro)}</span>
+                        </div>
                     </div>
-                    ${!item.recebido ? `<button class="btn-check" onclick="marcar(${item.id})">MARCAR COMO RECEBIDO</button>` : ''}
+                    ${!item.recebido ? `<button class="btn-check" onclick="marcarRecebido(${item.id})">CONFIRMAR RECEBIMENTO</button>` : ''}
                 </div>
             `;
         }).join('');
 
-        document.getElementById('lista').innerHTML = listaHTML;
-        document.getElementById('label-lucro').innerText = f(totalLucro);
-        document.getElementById('label-inv').innerText = f(totalInv);
+        document.getElementById('lista').innerHTML = html || '<p style="text-align:center; color:#444; margin-top:20px; font-size:12px;">Nenhum registro encontrado.</p>';
+        document.getElementById('label-lucro').innerText = f(tLucro);
+        document.getElementById('label-inv').innerText = f(tInv);
     }
 
+    function logout() {
+        localStorage.removeItem('finance_session_active');
+        location.reload();
+    }
+
+    // Auto-login se já tiver sessão
     window.onload = () => {
-        const s = localStorage.getItem('session');
-        if(s) { document.getElementById('user').value = s; login(); }
+        const s = localStorage.getItem('finance_session_active');
+        if(s) { 
+            document.getElementById('userField').value = s; 
+            handleLogin(); 
+        }
     };
 </script>
 </body>

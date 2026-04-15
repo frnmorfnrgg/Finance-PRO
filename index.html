@@ -113,28 +113,21 @@
     let dadosFinanceiros = [];
     let dadosEscaneados = [];
     let saldoCofre = 0;
-    let worker = null;
 
-    async function initIA() {
-        worker = await Tesseract.createWorker();
-        await worker.loadLanguage('eng+por');
-        await worker.initialize('eng+por');
-        await worker.setParameters({ tessedit_char_whitelist: '0123456789BRL.,/ dias' });
-    }
-    initIA();
-
-    // Função para formatar a data por extenso
+    // Função para formatar a data por extenso com dia da semana
     function formatarDataRecebimento(dataStr, dias) {
-        let partes = dataStr.split('/');
-        let data = new Date(partes[2], partes[1] - 1, partes[0]);
-        data.setDate(data.getDate() + parseInt(dias));
-        
-        const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-        const diaSemana = diasSemana[data.getDay()];
-        const diaMes = data.getDate().toString().padStart(2, '0');
-        const mes = (data.getMonth() + 1).toString().padStart(2, '0');
+        try {
+            let partes = dataStr.split('/');
+            let data = new Date(partes[2], partes[1] - 1, partes[0]);
+            data.setDate(data.getDate() + parseInt(dias));
+            
+            const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+            const diaSemana = diasSemana[data.getDay()];
+            const diaMes = data.getDate().toString().padStart(2, '0');
+            const mes = (data.getMonth() + 1).toString().padStart(2, '0');
 
-        return `${diaSemana}, ${diaMes}/${mes}`;
+            return `${diaSemana}, ${diaMes}/${mes}`;
+        } catch(e) { return "Data inválida"; }
     }
 
     function handleLogin() {
@@ -168,15 +161,28 @@
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('view-' + tab).classList.add('active');
-        event.currentTarget.classList.add('active');
+        if(event) event.currentTarget.classList.add('active');
     }
 
     async function processarIA(input) {
         if (!input.files || !input.files[0]) return;
-        document.getElementById('loading').style.display = 'block';
+        const loading = document.getElementById('loading');
+        loading.style.display = 'block';
+        loading.innerText = "🤖 INICIALIZANDO IA...";
+
         try {
+            // Cria worker sob demanda para evitar erros de memória em celulares
+            const worker = await Tesseract.createWorker({
+                logger: m => { if(m.status === 'recognizing') loading.innerText = `🤖 ANALISANDO: ${Math.round(m.progress * 100)}%`; }
+            });
+            
+            await worker.loadLanguage('por+eng');
+            await worker.initialize('por+eng');
+            await worker.setParameters({ tessedit_char_whitelist: '0123456789BRL.,/ dias' });
+
             const { data: { text } } = await worker.recognize(input.files[0]);
             const cleanText = text.replace(/\s+/g, ' ');
+            
             const regexValores = /BRL\s?(\d+[\.,]\d{2})/gi;
             const regexDatas = /(\d{2}\/\d{2}\/\d{4})/g;
             const regexDias = /(\d+)\s?dias/gi;
@@ -186,7 +192,7 @@
             const prazos = [...cleanText.matchAll(regexDias)].map(m => parseInt(m[1]));
 
             for (let i = 0; i < valores.length; i += 2) {
-                if (valores[i] && valores[i+1]) {
+                if (valores[i] !== undefined && valores[i+1] !== undefined) {
                     const prazo = prazos[Math.floor(i/2)] || 1;
                     const dataIni = datas[Math.floor(i/2)] || new Date().toLocaleDateString('pt-BR');
                     dadosEscaneados.push({
@@ -199,9 +205,15 @@
                     });
                 }
             }
+            
+            await worker.terminate(); // Fecha a IA para liberar memória
             renderScanner();
-        } catch (e) { alert("Erro IA"); }
-        finally { document.getElementById('loading').style.display = 'none'; }
+        } catch (e) { 
+            Swal.fire("Erro IA", "Não foi possível ler a imagem. Tente uma foto mais clara.", "error"); 
+        } finally { 
+            loading.style.display = 'none'; 
+            input.value = "";
+        }
     }
 
     function renderScanner() {
@@ -232,6 +244,7 @@
         salvar();
         renderScanner();
         switchTab('financeiro');
+        Swal.fire("Sucesso", "Lançamentos concluídos!", "success");
     }
 
     function adicionarManual() {
@@ -258,6 +271,7 @@
             item.recebido = true;
             saldoCofre += item.lucro;
             salvar();
+            Swal.fire({ icon: 'success', title: 'Lucro coletado!', showConfirmButton: false, timer: 1000 });
         }
     }
 
@@ -284,7 +298,6 @@
 
         document.getElementById('lista-financeiro').innerHTML = dadosFinanceiros.map(item => {
             if(!item.recebido) { pLucro += item.lucro; pInv += item.valor; }
-            
             const previsaoExtenso = formatarDataRecebimento(item.data, item.prazo || 1);
 
             return `
@@ -295,7 +308,6 @@
                     </small><br>
                     <small>${item.data} (${item.prazo} dias)</small><br>
                     <b>Aporte: ${f(item.valor)}</b> | <b style="color:var(--neon)">+ ${f(item.lucro)}</b><br>
-                    
                     ${!item.recebido ? `
                         <div class="date-badge"><i class="far fa-calendar-check"></i> Receber em: ${previsaoExtenso}</div>
                         <button class="btn-check" onclick="marcarRecebido(${item.id})">COLETAR LUCRO</button>

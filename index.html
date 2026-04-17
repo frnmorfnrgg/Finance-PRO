@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Finance PRO ™ Hub</title>
+    
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#050505">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon.png">
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/tesseract.js@v4.0.1/dist/tesseract.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -109,12 +116,20 @@
 </div>
 
 <script>
+    // REGISTRO DO SERVICE WORKER PARA PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('SW registrado!', reg))
+                .catch(err => console.log('Erro no SW', err));
+        });
+    }
+
     let currentUser = "";
     let dadosFinanceiros = [];
     let dadosEscaneados = [];
     let saldoCofre = 0;
 
-    // Função para formatar a data por extenso com dia da semana
     function formatarDataRecebimento(dataStr, dias) {
         try {
             let partes = dataStr.split('/');
@@ -171,7 +186,6 @@
         loading.innerText = "🤖 INICIALIZANDO IA...";
 
         try {
-            // Cria worker sob demanda para evitar erros de memória em celulares
             const worker = await Tesseract.createWorker({
                 logger: m => { if(m.status === 'recognizing') loading.innerText = `🤖 ANALISANDO: ${Math.round(m.progress * 100)}%`; }
             });
@@ -206,7 +220,7 @@
                 }
             }
             
-            await worker.terminate(); // Fecha a IA para liberar memória
+            await worker.terminate();
             renderScanner();
         } catch (e) { 
             Swal.fire("Erro IA", "Não foi possível ler a imagem. Tente uma foto mais clara.", "error"); 

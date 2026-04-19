@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -180,19 +180,27 @@
             
             const { data: { text } } = await worker.recognize(input.files[0]);
             
-            const regexMoeda = /(?:BRL|R\$)\s?(\d+[\.,]\d{2})/gi;
-            const todosValores = [...text.matchAll(regexMoeda)].map(m => parseFloat(m[1].replace(',', '.')));
+            // CORREÇÃO: Regex melhorada para capturar valores com mais precisão
+            const regexMoeda = /R\$\s?(\d+(?:[.,]\d{2})?)/gi;
+            const matches = [...text.matchAll(regexMoeda)];
+            
+            // Remove duplicatas usando Set e normaliza valores
+            const valoresUnicos = [...new Set(
+                matches.map(m => parseFloat(m[1].replace(',', '.')))
+            )];
             
             const dataGeral = (text.match(/(\d{2}\/\d{2}\/\d{4})/) || [])[0] || new Date().toLocaleDateString('pt-BR');
             const prazoGeral = parseInt((text.match(/(\d+)\s?dias/i) || [])[1]) || 1;
 
             dadosEscaneados = [];
 
-            for (let i = 0; i < todosValores.length; i += 2) {
-                const vInv = todosValores[i];
-                const vLuc = todosValores[i + 1];
+            // Agrupa valores em pares (investido + lucro)
+            for (let i = 0; i < valoresUnicos.length; i += 2) {
+                const vInv = valoresUnicos[i];
+                const vLuc = valoresUnicos[i + 1];
 
-                if (vInv !== undefined && vLuc !== undefined) {
+                // Validação: ambos devem existir e ser maiores que 0
+                if (vInv !== undefined && vLuc !== undefined && vInv > 0 && vLuc > 0) {
                     dadosEscaneados.push({
                         id: Date.now() + i + Math.random(), 
                         investido: vInv,

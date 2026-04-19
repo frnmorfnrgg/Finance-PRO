@@ -41,7 +41,7 @@
         /* Wallet Header */
         .wallet-card { background: linear-gradient(135deg, #111 0%, #050505 100%); padding: 25px 20px; border-radius: 0 0 30px 30px; border-bottom: 1px solid var(--neon); text-align: center; margin-bottom: 20px; }
         .stat-label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-        .btn-zerar { background: rgba(255, 62, 62, 0.1); color: var(--red); border: 1px solid var(--red); padding: 5px 15px; border-radius: 20px; font-size: 10px; font-weight: bold; margin-top: 10px; }
+        .btn-zerar { background: rgba(255, 62, 62, 0.1); color: var(--red); border: 1px solid var(--red); padding: 5px 15px; border-radius: 20px; font-size: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
 
         /* Content Area */
         .container { padding: 0 15px; max-width: 500px; margin: auto; }
@@ -56,14 +56,14 @@
         .input-box input { width: 100%; background: transparent; border: none; color: white; outline: none; font-size: 16px; color-scheme: dark; }
 
         /* Scanner */
-        .scanner-area { text-align: center; padding: 40px 20px; border: 2px dashed #333; border-radius: 25px; margin-bottom: 20px; background: #0a0a0a; }
+        .scanner-area { text-align: center; padding: 40px 20px; border: 2px dashed #333; border-radius: 25px; margin-bottom: 20px; background: #0a0a0a; cursor: pointer; }
         .loading-box { display: none; margin-top: 15px; color: var(--blue); font-weight: bold; }
-        .btn-lancar { background: var(--neon); color: #000; border: none; padding: 18px; width: 100%; border-radius: 15px; font-weight: bold; margin-bottom: 20px; font-size: 14px; }
+        .btn-lancar { background: var(--neon); color: #000; border: none; padding: 18px; width: 100%; border-radius: 15px; font-weight: bold; margin-bottom: 20px; font-size: 14px; cursor: pointer; }
 
         /* History Items */
         .hist-item { background: #121212; padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #222; position: relative; border-left: 4px solid #ffaa00; }
-        .btn-del { position: absolute; right: 15px; top: 15px; color: #444; font-size: 18px; }
-        .btn-check { width: 100%; margin-top: 12px; padding: 12px; border-radius: 10px; border: 1px solid var(--neon); background: rgba(0,255,136,0.05); color: var(--neon); font-weight: bold; }
+        .btn-del { position: absolute; right: 15px; top: 15px; color: #444; font-size: 18px; cursor: pointer; }
+        .btn-check { width: 100%; margin-top: 12px; padding: 12px; border-radius: 10px; border: 1px solid var(--neon); background: rgba(0,255,136,0.05); color: var(--neon); font-weight: bold; cursor: pointer; }
         .date-badge { display: inline-flex; align-items: center; gap: 5px; background: rgba(0, 212, 255, 0.1); color: var(--blue); padding: 5px 10px; border-radius: 8px; font-size: 11px; margin-top: 10px; font-weight: bold; }
 
         /* Bottom Nav */
@@ -143,9 +143,9 @@
                 <div class="scanner-area" onclick="document.getElementById('file-input').click()">
                     <i class="fas fa-camera" style="font-size: 40px; color: var(--blue); margin-bottom:15px"></i>
                     <p style="font-weight:bold; color:var(--blue)">Tirar Foto do Comprovante</p>
-                    <p style="font-size:11px; color:#555; margin-top:5px">Detecta valores e datas automaticamente</p>
+                    <p style="font-size:11px; color:#555; margin-top:5px">Detecta múltiplos investimentos no print</p>
                     <input type="file" id="file-input" accept="image/*" hidden onchange="processarIA(this)">
-                    <div id="loading" class="loading-box">🤖 ANALISANDO DADOS...</div>
+                    <div id="loading" class="loading-box">🤖 ANALISANDO PRINT...</div>
                 </div>
                 <button id="btn-lancar-ia" class="btn-lancar" style="display:none" onclick="lancarEscaneados()">🚀 LANÇAR TUDO NO FINANCEIRO</button>
                 <div id="lista-ia"></div>
@@ -176,9 +176,9 @@
             let partes = dataStr.split('/');
             let data = new Date(partes[2], partes[1] - 1, partes[0]);
             data.setDate(data.getDate() + parseInt(dias));
-            const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-            return `${diasSemana[data.getDay()]}, ${data.getDate().toString().padStart(2, '0')}/${(data.getMonth() + 1).toString().padStart(2, '0')}`;
-        } catch(e) { return "Erro data"; }
+            const diasSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+            return `${diasSemana[data.getDay()]}, ${data.getDate().toString().padStart(2, '0')}/${(data.getMonth() + 1).toString().padStart(2, '0')}/${data.getFullYear()}`;
+        } catch(e) { return "Data inválida"; }
     }
 
     function handleLogin() {
@@ -198,63 +198,58 @@
     }
 
     function logout() {
-        Swal.fire({
-            title: 'Mudar de conta?',
-            text: "Você voltará para a tela de login.",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: varColor('--neon'),
-            confirmButtonText: 'Sim, sair'
-        }).then((res) => {
-            if(res.isConfirmed) {
-                localStorage.removeItem('finance_session');
-                location.reload();
-            }
-        });
-    }
-
-    function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name); }
-
-    function switchTab(tab, el) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById('view-' + tab).classList.add('active');
-        el.classList.add('active');
-        window.scrollTo(0,0);
+        localStorage.removeItem('finance_session');
+        location.reload();
     }
 
     async function processarIA(input) {
         if (!input.files[0]) return;
         const loading = document.getElementById('loading');
         loading.style.display = 'block';
+        dadosEscaneados = [];
 
         try {
-            const worker = await Tesseract.createWorker();
-            await worker.loadLanguage('por');
-            await worker.initialize('por');
-            const { data: { text } } = await worker.recognize(input.files[0]);
+            const worker = await Tesseract.createWorker('por');
+            await worker.setParameters({
+                tessedit_char_whitelist: '0123456789BRL.,/ diasRetornoesperado:',
+            });
             
-            // Lógica de Extração Simplificada (Exemplo)
+            const { data: { text } } = await worker.recognize(input.files[0]);
             const cleanText = text.replace(/\s+/g, ' ');
-            const regexValores = /(\d+[\.,]\d{2})/g;
-            const matches = cleanText.match(regexValores);
+            
+            // Regex para capturar blocos: BRL [valor] ... Retorno esperado [valor]
+            const regexBlocos = /BRL\s?(\d+[\.,]\d{2}).*?Retorno esperado:?\s?BRL\s?(\d+[\.,]\d{2})/gi;
+            const regexDias = /(\d+)\s?dias/gi;
+            const regexDatas = /(\d{2}\/\d{2}\/\d{4})/g;
 
-            if(matches) {
-                const valor = parseFloat(matches[0].replace(',', '.'));
+            const prazos = [...cleanText.matchAll(regexDias)].map(m => m[1]);
+            const datas = cleanText.match(regexDatas) || [new Date().toLocaleDateString('pt-BR')];
+
+            let match;
+            let i = 0;
+            while ((match = regexBlocos.exec(cleanText)) !== null) {
+                const investido = parseFloat(match[1].replace(',', '.'));
+                const retorno = parseFloat(match[2].replace(',', '.'));
+                const lucro = retorno - investido;
+                const prazo = parseInt(prazos[i]) || 1;
+                const dataBase = datas[i] || datas[0];
+
                 dadosEscaneados.push({
-                    id: Date.now(),
-                    investido: valor,
-                    lucro: valor * 0.1, // Simulação de 10%
-                    prazo: 1,
-                    data: new Date().toLocaleDateString('pt-BR'),
-                    previsao: formatarDataRecebimento(new Date().toLocaleDateString('pt-BR'), 1)
+                    id: Date.now() + i,
+                    investido: investido,
+                    lucro: lucro,
+                    prazo: prazo,
+                    data: dataBase,
+                    previsao: formatarDataRecebimento(dataBase, prazo)
                 });
+                i++;
             }
             
             await worker.terminate();
             renderScanner();
+            if(dadosEscaneados.length === 0) Swal.fire("Aviso", "Não detectei dados. Tente uma foto mais nítida.", "warning");
         } catch (e) {
-            Swal.fire("Erro", "Não foi possível processar a imagem", "error");
+            Swal.fire("Erro", "Erro ao processar imagem", "error");
         } finally {
             loading.style.display = 'none';
         }
@@ -264,9 +259,11 @@
         const btn = document.getElementById('btn-lancar-ia');
         btn.style.display = dadosEscaneados.length > 0 ? 'block' : 'none';
         document.getElementById('lista-ia').innerHTML = dadosEscaneados.map(item => `
-            <div class="card" style="border-left:4px solid var(--blue)">
-                <small>${item.data}</small><br>
-                <b>Valor Identificado: R$ ${item.investido.toFixed(2)}</b>
+            <div class="card" style="border-left:4px solid var(--blue); padding: 15px">
+                <div style="font-size:10px; color:#888">${item.data} (${item.prazo} dias)</div>
+                <div style="margin:5px 0">Aporte: <b>R$ ${item.investido.toFixed(2)}</b></div>
+                <div style="color:var(--neon)">Lucro: <b>+ R$ ${item.lucro.toFixed(2)}</b></div>
+                <div class="date-badge" style="width:100%"><i class="far fa-calendar-alt"></i> Retorno: ${item.previsao}</div>
             </div>
         `).join('');
     }
@@ -282,7 +279,7 @@
         salvar();
         renderScanner();
         switchTab('financeiro', document.querySelectorAll('.nav-item')[0]);
-        Swal.fire("Sucesso", "Dados transferidos!", "success");
+        Swal.fire("Sucesso", "Investimentos adicionados!", "success");
     }
 
     function adicionarManual() {
@@ -308,6 +305,7 @@
             item.recebido = true;
             saldoCofre += item.lucro;
             salvar();
+            Swal.fire({ icon: 'success', title: 'Lucro Coletado!', timer: 800, showConfirmButton: false });
         }
     }
 
@@ -329,12 +327,9 @@
     }
 
     function zerarSaldoColetado() {
-        Swal.fire({
-            title: 'Zerar cofre?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Sim, zerar'
-        }).then(r => { if(r.isConfirmed) { saldoCofre = 0; salvar(); }});
+        Swal.fire({ title: 'Zerar cofre?', icon: 'warning', showCancelButton: true }).then(r => { 
+            if(r.isConfirmed) { saldoCofre = 0; salvar(); }
+        });
     }
 
     function renderFinanceiro() {
@@ -347,12 +342,12 @@
                 <div class="hist-item" style="border-left-color: ${item.recebido ? 'var(--neon)' : '#ffaa00'}">
                     <a href="javascript:void(0)" class="btn-del" onclick="remover(${item.id})"><i class="fas fa-times"></i></a>
                     <small style="color:${item.recebido ? 'var(--neon)' : '#ffaa00'}">
-                        ${item.recebido ? '● RECEBIDO' : '● EM OPERAÇÃO'}
+                        ${item.recebido ? '● CONCLUÍDO' : '● EM OPERAÇÃO'}
                     </small><br>
                     <small>${item.data} • ${item.prazo} dias</small><br>
                     <b style="font-size:16px">${f(item.valor)}</b> <span style="color:var(--neon)">+ ${f(item.lucro)}</span><br>
                     ${!item.recebido ? `
-                        <div class="date-badge"><i class="far fa-calendar-check"></i> Expira em: ${formatarDataRecebimento(item.data, item.prazo)}</div>
+                        <div class="date-badge"><i class="far fa-calendar-check"></i> Expira: ${formatarDataRecebimento(item.data, item.prazo)}</div>
                         <button class="btn-check" onclick="marcarRecebido(${item.id})">COLETAR LUCRO</button>
                     ` : ''}
                 </div>
@@ -362,6 +357,14 @@
         document.getElementById('label-carteira').innerText = f(saldoCofre);
         document.getElementById('label-lucro').innerText = f(pLucro);
         document.getElementById('label-inv').innerText = f(pInv);
+    }
+
+    function switchTab(tab, el) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById('view-' + tab).classList.add('active');
+        el.classList.add('active');
+        window.scrollTo(0,0);
     }
 
     window.onload = () => {

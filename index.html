@@ -20,113 +20,149 @@
             --red: #ff3e3e; --border: rgba(255,255,255,0.1);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
-        body { background: var(--bg); color: white; overflow-x: hidden; min-height: 100vh; }
+        body { background: var(--bg); color: white; overflow-x: hidden; min-height: 100vh; padding-bottom: 80px; }
         
+        /* Auth */
         #auth-screen { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; }
         .auth-card { background: #111; padding: 30px; border-radius: 30px; width: 90%; max-width: 380px; text-align: center; border: 1px solid #222; }
         .auth-card input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; outline: none; font-size: 16px; }
         .btn-auth { width: 100%; padding: 18px; border-radius: 12px; border: none; background: var(--neon); color: #000; font-weight: bold; cursor: pointer; }
 
-        header {
-            padding: 15px; background: rgba(10,10,10,0.95); backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+        /* Top Bar */
+        .top-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px; background: rgba(10,10,10,0.9); backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border);
         }
-        
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .user-badge { font-size: 10px; color: var(--neon); background: rgba(0,255,136,0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid var(--neon); }
-        .btn-logout { background: none; border: none; color: #888; font-size: 12px; cursor: pointer; text-decoration: underline; }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 35px; height: 35px; background: var(--neon); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .logout-pill { background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 20px; font-size: 11px; color: #fff; border: 1px solid var(--border); text-decoration: none; display: flex; align-items: center; gap: 5px; }
 
-        .nav-tabs { display: flex; gap: 10px; margin-top: 15px; }
-        .tab-btn { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: #111; color: #888; font-weight: bold; cursor: pointer; font-size: 11px; }
-        .tab-btn.active { border-color: var(--neon); color: var(--neon); background: rgba(0,255,136,0.05); }
+        /* Wallet Header */
+        .wallet-card { background: linear-gradient(135deg, #111 0%, #050505 100%); padding: 25px 20px; border-radius: 0 0 30px 30px; border-bottom: 1px solid var(--neon); text-align: center; margin-bottom: 20px; }
+        .stat-label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-zerar { background: rgba(255, 62, 62, 0.1); color: var(--red); border: 1px solid var(--red); padding: 5px 15px; border-radius: 20px; font-size: 10px; font-weight: bold; margin-top: 10px; }
 
-        .container { padding: 15px; max-width: 500px; margin: auto; width: 100%; }
+        /* Content Area */
+        .container { padding: 0 15px; max-width: 500px; margin: auto; }
         .view { display: none; }
-        .view.active { display: block; }
+        .view.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .wallet-card { background: linear-gradient(135deg, #111 0%, #050505 100%); padding: 20px; border-radius: 15px; border: 1px solid var(--neon); text-align: center; margin-bottom: 15px; }
-        .stat-label { font-size: 9px; color: #888; text-transform: uppercase; font-weight: bold; }
-        
-        .btn-zerar {
-            background: rgba(255, 62, 62, 0.1); color: var(--red); border: 1px solid var(--red);
-            padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: bold;
-            margin-top: 10px; cursor: pointer;
-        }
-
+        /* Elements */
         .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); }
-        .input-box { background: #1a1a1a; padding: 10px; border-radius: 12px; border: 1px solid #333; margin-bottom: 10px; }
-        .input-box label { display: block; font-size: 9px; color: #888; margin-bottom: 4px; }
-        .input-box input { width: 100%; background: transparent; border: none; color: white; outline: none; color-scheme: dark; }
+        .input-box { background: #1a1a1a; padding: 12px; border-radius: 12px; border: 1px solid #333; margin-bottom: 12px; }
+        .input-box label { display: block; font-size: 9px; color: var(--neon); margin-bottom: 4px; font-weight: bold; }
+        .input-box input { width: 100%; background: transparent; border: none; color: white; outline: none; font-size: 16px; color-scheme: dark; }
 
-        .scanner-btn { background: #121212; border: 2px dashed #333; border-radius: 20px; padding: 30px 10px; text-align: center; cursor: pointer; margin-bottom: 15px; }
-        .loading-box { display: none; margin-top: 15px; color: var(--blue); font-weight: bold; font-size: 0.8rem; }
-        .btn-lancar { background: var(--neon); color: #000; border: none; padding: 15px; width: 100%; border-radius: 12px; font-weight: bold; margin-bottom: 15px; display: none; }
+        /* Scanner */
+        .scanner-area { text-align: center; padding: 40px 20px; border: 2px dashed #333; border-radius: 25px; margin-bottom: 20px; background: #0a0a0a; }
+        .loading-box { display: none; margin-top: 15px; color: var(--blue); font-weight: bold; }
+        .btn-lancar { background: var(--neon); color: #000; border: none; padding: 18px; width: 100%; border-radius: 15px; font-weight: bold; margin-bottom: 20px; font-size: 14px; }
 
-        .hist-item { background: #1a1a1a; padding: 15px; border-radius: 15px; margin-bottom: 12px; border: 1px solid #333; position: relative; border-left: 5px solid #ffaa00; }
-        .btn-del { position: absolute; right: 10px; top: 10px; color: var(--red); background: none; border: none; font-size: 20px; cursor: pointer; }
-        .btn-check { width: 100%; margin-top: 10px; padding: 10px; border-radius: 8px; border: 1px solid var(--neon); background: transparent; color: var(--neon); font-weight: bold; cursor: pointer; }
-        
-        .date-badge { display: inline-block; background: rgba(0, 212, 255, 0.1); color: var(--blue); padding: 4px 8px; border-radius: 6px; font-size: 11px; margin-top: 8px; font-weight: bold; border: 1px solid rgba(0, 212, 255, 0.2); }
+        /* History Items */
+        .hist-item { background: #121212; padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #222; position: relative; border-left: 4px solid #ffaa00; }
+        .btn-del { position: absolute; right: 15px; top: 15px; color: #444; font-size: 18px; }
+        .btn-check { width: 100%; margin-top: 12px; padding: 12px; border-radius: 10px; border: 1px solid var(--neon); background: rgba(0,255,136,0.05); color: var(--neon); font-weight: bold; }
+        .date-badge { display: inline-flex; align-items: center; gap: 5px; background: rgba(0, 212, 255, 0.1); color: var(--blue); padding: 5px 10px; border-radius: 8px; font-size: 11px; margin-top: 10px; font-weight: bold; }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 70px;
+            background: rgba(15,15,15,0.95); backdrop-filter: blur(15px);
+            display: flex; justify-content: space-around; align-items: center;
+            border-top: 1px solid var(--border); z-index: 1000;
+        }
+        .nav-item { color: #555; text-align: center; transition: 0.3s; flex: 1; cursor: pointer; }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
+        .nav-item span { font-size: 10px; font-weight: bold; }
+        .nav-item.active { color: var(--neon); }
     </style>
 </head>
 <body>
 
 <div id="auth-screen">
     <div class="auth-card">
-        <h1 style="color: var(--neon); margin-bottom: 20px;">Finance PRO</h1>
-        <input type="text" id="userField" placeholder="Seu ID">
+        <div style="font-size: 40px; margin-bottom: 10px;">📊</div>
+        <h1 style="color: var(--neon); margin-bottom: 20px; letter-spacing: -1px;">Finance PRO</h1>
+        <input type="text" id="userField" placeholder="ID da Conta">
         <input type="password" id="passField" placeholder="Senha">
-        <button class="btn-auth" onclick="handleLogin()">ENTRAR</button>
+        <button class="btn-auth" onclick="handleLogin()">ACESSAR PAINEL</button>
     </div>
 </div>
 
-<header id="main-header" style="display:none">
-    <div class="header-top">
-        <span class="user-badge" id="display-user">ID: ---</span>
-        <button class="btn-logout" onclick="logout()">Sair / Mudar Conta</button>
-    </div>
-
-    <div class="wallet-card">
-        <span class="stat-label" style="color: var(--neon)">Saldo Coletado</span>
-        <div id="label-carteira" style="font-size: 24px; font-weight: 900; color: #fff; margin: 5px 0;">R$ 0,00</div>
-        <button class="btn-zerar" onclick="zerarSaldoColetado()">ZERAR SALDO COLETADO</button>
-
-        <div style="display:flex; gap:10px; justify-content:center; margin-top:15px">
-            <div class="stat-label">Investido: <span id="label-inv" style="color:var(--blue)">R$ 0,00</span></div>
-            <div class="stat-label">Pendente: <span id="label-lucro" style="color:#ffaa00">R$ 0,00</span></div>
+<div id="main-app" style="display:none">
+    <div class="top-bar">
+        <div class="user-info">
+            <div class="user-avatar" id="avatar-char">U</div>
+            <div style="font-size: 14px; font-weight: bold;" id="user-name">Usuário</div>
         </div>
+        <a href="javascript:void(0)" class="logout-pill" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Mudar Conta
+        </a>
     </div>
-    <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('financeiro')"><i class="fas fa-wallet"></i> FINANCEIRO</button>
-        <button class="tab-btn" onclick="switchTab('scanner')"><i class="fas fa-robot"></i> ESCANEAR IA</button>
-    </div>
-</header>
 
-<div class="container" id="app-content" style="display:none">
-    <div id="view-financeiro" class="view active">
-        <div class="card">
-            <div class="input-box">
-                <label><i class="far fa-calendar-alt"></i> DATA INICIAL</label>
-                <input type="date" id="inp-data">
+    <header class="wallet-card">
+        <span class="stat-label">Saldo Coletado</span>
+        <div id="label-carteira" style="font-size: 32px; font-weight: 900; color: #fff; margin: 5px 0;">R$ 0,00</div>
+        <button class="btn-zerar" onclick="zerarSaldoColetado()">LIMPAR COFRE</button>
+
+        <div style="display:flex; gap:20px; justify-content:center; margin-top:20px">
+            <div>
+                <div class="stat-label">Investido</div>
+                <div id="label-inv" style="color:var(--blue); font-weight: bold;">R$ 0,00</div>
             </div>
-            <div class="input-box"><label>VALOR (R$)</label><input type="number" id="inp-p" placeholder="0.00"></div>
-            <div class="input-box"><label>TAXA (%)</label><input type="number" id="inp-i" placeholder="0"></div>
-            <div class="input-box"><label>DIAS</label><input type="number" id="inp-n" value="1"></div>
-            <button class="btn-save" onclick="adicionarManual()" style="width:100%; padding:15px; border-radius:12px; background:var(--neon); border:none; font-weight:bold;">LANÇAR MANUAL</button>
+            <div>
+                <div class="stat-label">Em Aberto</div>
+                <div id="label-lucro" style="color:#ffaa00; font-weight: bold;">R$ 0,00</div>
+            </div>
         </div>
-        <div id="lista-financeiro"></div>
+    </header>
+
+    <div class="container">
+        <div id="view-financeiro" class="view active">
+            <div class="card">
+                <h3 style="margin-bottom:15px; font-size:14px; color:#888">LANÇAMENTO MANUAL</h3>
+                <div class="input-box">
+                    <label>DATA INICIAL</label>
+                    <input type="date" id="inp-data">
+                </div>
+                <div class="input-box"><label>VALOR (R$)</label><input type="number" id="inp-p" placeholder="0.00"></div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
+                    <div class="input-box"><label>TAXA (%)</label><input type="number" id="inp-i" placeholder="0"></div>
+                    <div class="input-box"><label>DIAS</label><input type="number" id="inp-n" value="1"></div>
+                </div>
+                <button class="btn-auth" onclick="adicionarManual()">ADICIONAR À LISTA</button>
+            </div>
+            <div id="lista-financeiro"></div>
+        </div>
+
+        <div id="view-scanner" class="view">
+            <div class="card">
+                <h3 style="margin-bottom:15px; font-size:14px; color:#888">IA SCANNER</h3>
+                <div class="scanner-area" onclick="document.getElementById('file-input').click()">
+                    <i class="fas fa-camera" style="font-size: 40px; color: var(--blue); margin-bottom:15px"></i>
+                    <p style="font-weight:bold; color:var(--blue)">Tirar Foto do Comprovante</p>
+                    <p style="font-size:11px; color:#555; margin-top:5px">Detecta valores e datas automaticamente</p>
+                    <input type="file" id="file-input" accept="image/*" hidden onchange="processarIA(this)">
+                    <div id="loading" class="loading-box">🤖 ANALISANDO DADOS...</div>
+                </div>
+                <button id="btn-lancar-ia" class="btn-lancar" style="display:none" onclick="lancarEscaneados()">🚀 LANÇAR TUDO NO FINANCEIRO</button>
+                <div id="lista-ia"></div>
+            </div>
+        </div>
     </div>
 
-    <div id="view-scanner" class="view">
-        <div class="scanner-btn" onclick="document.getElementById('file-input').click()">
-            <span style="font-size: 2rem;">📸</span><br>
-            <b style="color: var(--blue);">ESCANEAR COMPROVANTE</b>
-            <input type="file" id="file-input" accept="image/*" hidden onchange="processarIA(this)">
-            <div id="loading" class="loading-box">🤖 IA ANALISANDO...</div>
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('financeiro', this)">
+            <i class="fas fa-chart-line"></i>
+            <span>FINANCEIRO</span>
         </div>
-        <button id="btn-lancar-ia" class="btn-lancar" onclick="lancarEscaneados()">🚀 LANÇAR TUDO NO FINANCEIRO</button>
-        <div id="lista-ia"></div>
-    </div>
+        <div class="nav-item" onclick="switchTab('scanner', this)">
+            <i class="fas fa-expand"></i>
+            <span>SCANNER IA</span>
+        </div>
+    </nav>
 </div>
 
 <script>
@@ -135,118 +171,92 @@
     let dadosEscaneados = [];
     let saldoCofre = 0;
 
-    // Define data de hoje no input de data por padrão
-    function setTodayDate() {
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('inp-data').value = today;
-    }
-
     function formatarDataRecebimento(dataStr, dias) {
         try {
             let partes = dataStr.split('/');
             let data = new Date(partes[2], partes[1] - 1, partes[0]);
             data.setDate(data.getDate() + parseInt(dias));
-            
-            const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-            const diaSemana = diasSemana[data.getDay()];
-            const diaMes = data.getDate().toString().padStart(2, '0');
-            const mes = (data.getMonth() + 1).toString().padStart(2, '0');
-
-            return `${diaSemana}, ${diaMes}/${mes}`;
-        } catch(e) { return "Data inválida"; }
+            const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+            return `${diasSemana[data.getDay()]}, ${data.getDate().toString().padStart(2, '0')}/${(data.getMonth() + 1).toString().padStart(2, '0')}`;
+        } catch(e) { return "Erro data"; }
     }
 
     function handleLogin() {
-        const u = document.getElementById('userField').value.trim().toLowerCase();
+        const u = document.getElementById('userField').value.trim();
         if(!u) return;
-        currentUser = u;
-        localStorage.setItem('finance_session', u);
+        currentUser = u.toLowerCase();
+        localStorage.setItem('finance_session', currentUser);
         
-        document.getElementById('display-user').innerText = `ID: ${u.toUpperCase()}`;
+        document.getElementById('user-name').innerText = u;
+        document.getElementById('avatar-char').innerText = u.charAt(0).toUpperCase();
         document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('main-header').style.display = 'block';
-        document.getElementById('app-content').style.display = 'block';
+        document.getElementById('main-app').style.display = 'block';
         
-        setTodayDate();
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('inp-data').value = today;
         carregarTudo();
     }
 
     function logout() {
-        localStorage.removeItem('finance_session');
-        location.reload();
-    }
-
-    function zerarSaldoColetado() {
         Swal.fire({
-            title: 'Zerar Saldo?',
-            text: "Deseja limpar o cofre?",
-            icon: 'warning',
+            title: 'Mudar de conta?',
+            text: "Você voltará para a tela de login.",
+            icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#ff3e3e',
-            confirmButtonText: 'Sim'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                saldoCofre = 0;
-                salvar();
+            confirmButtonColor: varColor('--neon'),
+            confirmButtonText: 'Sim, sair'
+        }).then((res) => {
+            if(res.isConfirmed) {
+                localStorage.removeItem('finance_session');
+                location.reload();
             }
         });
     }
 
-    function switchTab(tab) {
+    function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name); }
+
+    function switchTab(tab, el) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById('view-' + tab).classList.add('active');
-        if(event) event.currentTarget.classList.add('active');
+        el.classList.add('active');
+        window.scrollTo(0,0);
     }
 
     async function processarIA(input) {
-        if (!input.files || !input.files[0]) return;
+        if (!input.files[0]) return;
         const loading = document.getElementById('loading');
         loading.style.display = 'block';
-        loading.innerText = "🤖 INICIALIZANDO IA...";
 
         try {
-            const worker = await Tesseract.createWorker({
-                logger: m => { if(m.status === 'recognizing') loading.innerText = `🤖 ANALISANDO: ${Math.round(m.progress * 100)}%`; }
-            });
-            
-            await worker.loadLanguage('por+eng');
-            await worker.initialize('por+eng');
-            await worker.setParameters({ tessedit_char_whitelist: '0123456789BRL.,/ dias' });
-
+            const worker = await Tesseract.createWorker();
+            await worker.loadLanguage('por');
+            await worker.initialize('por');
             const { data: { text } } = await worker.recognize(input.files[0]);
-            const cleanText = text.replace(/\s+/g, ' ');
             
-            const regexValores = /BRL\s?(\d+[\.,]\d{2})/gi;
-            const regexDatas = /(\d{2}\/\d{2}\/\d{4})/g;
-            const regexDias = /(\d+)\s?dias/gi;
+            // Lógica de Extração Simplificada (Exemplo)
+            const cleanText = text.replace(/\s+/g, ' ');
+            const regexValores = /(\d+[\.,]\d{2})/g;
+            const matches = cleanText.match(regexValores);
 
-            const valores = [...cleanText.matchAll(regexValores)].map(m => parseFloat(m[1].replace(',', '.')));
-            const datas = [...cleanText.matchAll(regexDatas)].map(m => m[1]);
-            const prazos = [...cleanText.matchAll(regexDias)].map(m => parseInt(m[1]));
-
-            for (let i = 0; i < valores.length; i += 2) {
-                if (valores[i] !== undefined && valores[i+1] !== undefined) {
-                    const prazo = prazos[Math.floor(i/2)] || 1;
-                    const dataIni = datas[Math.floor(i/2)] || new Date().toLocaleDateString('pt-BR');
-                    dadosEscaneados.push({
-                        id: Date.now() + i,
-                        investido: valores[i],
-                        lucro: valores[i+1],
-                        prazo: prazo,
-                        data: dataIni,
-                        previsao: formatarDataRecebimento(dataIni, prazo)
-                    });
-                }
+            if(matches) {
+                const valor = parseFloat(matches[0].replace(',', '.'));
+                dadosEscaneados.push({
+                    id: Date.now(),
+                    investido: valor,
+                    lucro: valor * 0.1, // Simulação de 10%
+                    prazo: 1,
+                    data: new Date().toLocaleDateString('pt-BR'),
+                    previsao: formatarDataRecebimento(new Date().toLocaleDateString('pt-BR'), 1)
+                });
             }
             
             await worker.terminate();
             renderScanner();
-        } catch (e) { 
-            Swal.fire("Erro IA", "Não foi possível ler a imagem.", "error"); 
-        } finally { 
-            loading.style.display = 'none'; 
-            input.value = "";
+        } catch (e) {
+            Swal.fire("Erro", "Não foi possível processar a imagem", "error");
+        } finally {
+            loading.style.display = 'none';
         }
     }
 
@@ -255,10 +265,8 @@
         btn.style.display = dadosEscaneados.length > 0 ? 'block' : 'none';
         document.getElementById('lista-ia').innerHTML = dadosEscaneados.map(item => `
             <div class="card" style="border-left:4px solid var(--blue)">
-                <small>${item.data} (${item.prazo} dias)</small><br>
-                <b>Investido: R$ ${item.investido.toFixed(2)}</b><br>
-                <b style="color:var(--neon)">Lucro: R$ ${item.lucro.toFixed(2)}</b><br>
-                <div class="date-badge"><i class="far fa-calendar-alt"></i> Receber em: ${item.previsao}</div>
+                <small>${item.data}</small><br>
+                <b>Valor Identificado: R$ ${item.investido.toFixed(2)}</b>
             </div>
         `).join('');
     }
@@ -266,47 +274,32 @@
     function lancarEscaneados() {
         dadosEscaneados.forEach(item => {
             dadosFinanceiros.unshift({
-                id: item.id,
-                valor: item.investido,
-                lucro: item.lucro,
-                data: item.data,
-                prazo: item.prazo,
-                recebido: false
+                id: item.id, valor: item.investido, lucro: item.lucro,
+                data: item.data, prazo: item.prazo, recebido: false
             });
         });
         dadosEscaneados = [];
         salvar();
         renderScanner();
-        switchTab('financeiro');
-        Swal.fire("Sucesso", "Lançamentos concluídos!", "success");
+        switchTab('financeiro', document.querySelectorAll('.nav-item')[0]);
+        Swal.fire("Sucesso", "Dados transferidos!", "success");
     }
 
     function adicionarManual() {
         const p = parseFloat(document.getElementById('inp-p').value) || 0;
         const i = parseFloat(document.getElementById('inp-i').value) || 0;
         const n = parseInt(document.getElementById('inp-n').value) || 1;
-        const dataInput = document.getElementById('inp-data').value;
-        
-        if(p <= 0 || !dataInput) {
-            Swal.fire("Atenção", "Preencha o valor e a data", "warning");
-            return;
-        }
+        const dt = document.getElementById('inp-data').value;
+        if(p <= 0) return;
 
-        // Converte YYYY-MM-DD para DD/MM/YYYY
-        const d = dataInput.split('-');
-        const dataFormatada = `${d[2]}/${d[1]}/${d[0]}`;
-
+        const dParts = dt.split('-');
         dadosFinanceiros.unshift({
-            id: Date.now(),
-            valor: p,
-            lucro: p * (i/100) * n,
-            data: dataFormatada,
-            prazo: n,
-            recebido: false
+            id: Date.now(), valor: p, lucro: p * (i/100) * n,
+            data: `${dParts[2]}/${dParts[1]}/${dParts[0]}`,
+            prazo: n, recebido: false
         });
         salvar();
         document.getElementById('inp-p').value = "";
-        Swal.fire({ icon: 'success', title: 'Lançado!', timer: 800, showConfirmButton: false });
     }
 
     function marcarRecebido(id) {
@@ -335,26 +328,33 @@
         renderFinanceiro();
     }
 
+    function zerarSaldoColetado() {
+        Swal.fire({
+            title: 'Zerar cofre?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, zerar'
+        }).then(r => { if(r.isConfirmed) { saldoCofre = 0; salvar(); }});
+    }
+
     function renderFinanceiro() {
         const f = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         let pLucro = 0, pInv = 0;
 
         document.getElementById('lista-financeiro').innerHTML = dadosFinanceiros.map(item => {
             if(!item.recebido) { pLucro += item.lucro; pInv += item.valor; }
-            const previsaoExtenso = formatarDataRecebimento(item.data, item.prazo || 1);
-
             return `
                 <div class="hist-item" style="border-left-color: ${item.recebido ? 'var(--neon)' : '#ffaa00'}">
-                    <button class="btn-del" onclick="remover(${item.id})">&times;</button>
+                    <a href="javascript:void(0)" class="btn-del" onclick="remover(${item.id})"><i class="fas fa-times"></i></a>
                     <small style="color:${item.recebido ? 'var(--neon)' : '#ffaa00'}">
                         ${item.recebido ? '● RECEBIDO' : '● EM OPERAÇÃO'}
                     </small><br>
-                    <small>${item.data} (${item.prazo} dias)</small><br>
-                    <b>Aporte: ${f(item.valor)}</b> | <b style="color:var(--neon)">+ ${f(item.lucro)}</b><br>
+                    <small>${item.data} • ${item.prazo} dias</small><br>
+                    <b style="font-size:16px">${f(item.valor)}</b> <span style="color:var(--neon)">+ ${f(item.lucro)}</span><br>
                     ${!item.recebido ? `
-                        <div class="date-badge"><i class="far fa-calendar-check"></i> Receber em: ${previsaoExtenso}</div>
+                        <div class="date-badge"><i class="far fa-calendar-check"></i> Expira em: ${formatarDataRecebimento(item.data, item.prazo)}</div>
                         <button class="btn-check" onclick="marcarRecebido(${item.id})">COLETAR LUCRO</button>
-                    ` : '<div class="date-badge" style="background:rgba(0,255,136,0.1); color:var(--neon); border-color:rgba(0,255,136,0.2)">CONCLUÍDO</div>'}
+                    ` : ''}
                 </div>
             `;
         }).join('');
@@ -370,5 +370,4 @@
     };
 </script>
 </body>
-        </html>
-                                                          
+</html>

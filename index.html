@@ -75,9 +75,9 @@
 <div id="auth-screen">
     <div class="auth-card">
         <h1 style="color: var(--neon); margin-bottom: 20px;">Finance PRO</h1>
-        <input type="text" id="userField" placeholder="Seu Usuário">
+        <input type="text" id="userField" placeholder="Seu ID">
         <input type="password" id="passField" placeholder="Senha">
-        <button class="btn-auth" onclick="handleLogin()">LOGUIN/ENTRAR</button>
+        <button class="btn-auth" onclick="handleLogin()">ENTRAR</button>
     </div>
 </div>
 
@@ -142,7 +142,7 @@
     let dadosEscaneados = [];
     let saldoCofre = 0;
 
-    // --- FUNÇÕES DE UTILIDADE E DATA ---
+    // --- FUNÇÕES DE UTILIDADE ---
     function definirDataInicio(val) {
         if(!val) return;
         const partes = val.split('-');
@@ -168,7 +168,7 @@
         reader.onerror = error => reject(error);
     });
 
-    // --- PROCESSAMENTO COM IA (GEMINI) ---
+    // --- PROCESSAMENTO COM IA (VERSÃO ROBUSTA PARA GITHUB PAGES) ---
     async function processarIA(input) {
         if (!input.files[0]) return;
         const loading = document.getElementById('loading');
@@ -185,7 +185,7 @@
                 body: JSON.stringify({
                     contents: [{
                         parts: [
-                            { text: "Analise este comprovante financeiro e extraia: valor_investido (número), taxa_juros_diaria_percentual (número), prazo_dias (número) e data_transacao (DD/MM/AAAA). Responda APENAS um JSON: { \"valor\": 0, \"taxa\": 0, \"dias\": 1, \"data\": \"\" }. Se não encontrar, use o padrão." },
+                            { text: "Analise este comprovante e extraia em JSON puro (sem markdown): valor_investido (número), taxa_juros_diaria_percentual (número), prazo_dias (número) e data_transacao (DD/MM/AAAA). Use chaves: valor, taxa, dias, data." },
                             { inline_data: { mime_type: file.type, data: pureBase64 } }
                         ]
                     }]
@@ -193,29 +193,38 @@
             });
 
             const resData = await response.json();
+            
+            if (resData.error) throw new Error(resData.error.message);
+
             const textResponse = resData.candidates[0].content.parts[0].text;
-            const jsonClean = textResponse.replace(/```json|```/g, "").trim();
-            const extraido = JSON.parse(jsonClean);
+            
+            // Limpeza de resposta para evitar erros de JSON
+            const jsonMatch = textResponse.match(/\{.*\}/s);
+            if (!jsonMatch) throw new Error("Não foi possível identificar os dados no comprovante.");
+            
+            const extraido = JSON.parse(jsonMatch[0]);
 
             dadosEscaneados.unshift({
                 id: Date.now(),
                 data: extraido.data || new Date().toLocaleDateString('pt-BR'),
                 investido: parseFloat(extraido.valor) || 0,
-                lucro: (extraido.valor * (extraido.taxa / 100) * extraido.dias),
-                prazo: extraido.dias || 1
+                lucro: (parseFloat(extraido.valor) * (parseFloat(extraido.taxa) / 100) * parseInt(extraido.dias)),
+                prazo: parseInt(extraido.dias) || 1
             });
 
             renderScanner();
+            Swal.fire("IA Concluída", "Dados extraídos com sucesso!", "success");
+
         } catch (e) { 
             console.error(e);
-            Swal.fire("Erro na IA", "Não consegui ler o comprovante. Verifique a chave da API ou a imagem.", "error"); 
+            Swal.fire("Erro na IA", "Detalhe: " + e.message, "error"); 
         } finally { 
             loading.style.display = 'none'; 
             input.value = ""; 
         }
     }
 
-    // --- LÓGICA DE NEGÓCIO ---
+    // --- LÓGICA DE NEGÓCIO (FINANCEIRO) ---
     function adicionarManual() {
         const p = parseFloat(document.getElementById('inp-p').value) || 0;
         const i = parseFloat(document.getElementById('inp-i').value) || 0;

@@ -12,7 +12,6 @@
     <link rel="apple-touch-icon" href="icon.png">
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://unpkg.com/tesseract.js@v4.0.1/dist/tesseract.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { 
@@ -76,9 +75,9 @@
 <div id="auth-screen">
     <div class="auth-card">
         <h1 style="color: var(--neon); margin-bottom: 20px;">Finance PRO</h1>
-        <input type="text" id="userField" placeholder="Seu ID">
+        <input type="text" id="userField" placeholder="Seu Usuário">
         <input type="password" id="passField" placeholder="Senha">
-        <button class="btn-auth" onclick="handleLogin()">ENTRAR</button>
+        <button class="btn-auth" onclick="handleLogin()">LOGUIN/ENTRAR</button>
     </div>
 </div>
 
@@ -134,8 +133,16 @@
 </div>
 
 <script>
+    // --- CONFIGURAÇÃO ---
+    const GEMINI_API_KEY = "SUA_CHAVE_AQUI"; // <--- COLOQUE SUA CHAVE AQUI
+    
     let dataInicioManual = "";
+    let currentUser = "";
+    let dadosFinanceiros = [];
+    let dadosEscaneados = [];
+    let saldoCofre = 0;
 
+    // --- FUNÇÕES DE UTILIDADE E DATA ---
     function definirDataInicio(val) {
         if(!val) return;
         const partes = val.split('-');
@@ -154,41 +161,75 @@
         } catch(e) { return "Erro data"; }
     }
 
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+
+    // --- PROCESSAMENTO COM IA (GEMINI) ---
+    async function processarIA(input) {
+        if (!input.files[0]) return;
+        const loading = document.getElementById('loading');
+        loading.style.display = 'block';
+
+        try {
+            const file = input.files[0];
+            const base64Data = await toBase64(file);
+            const pureBase64 = base64Data.split(',')[1];
+
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [
+                            { text: "Analise este comprovante financeiro e extraia: valor_investido (número), taxa_juros_diaria_percentual (número), prazo_dias (número) e data_transacao (DD/MM/AAAA). Responda APENAS um JSON: { \"valor\": 0, \"taxa\": 0, \"dias\": 1, \"data\": \"\" }. Se não encontrar, use o padrão." },
+                            { inline_data: { mime_type: file.type, data: pureBase64 } }
+                        ]
+                    }]
+                })
+            });
+
+            const resData = await response.json();
+            const textResponse = resData.candidates[0].content.parts[0].text;
+            const jsonClean = textResponse.replace(/```json|```/g, "").trim();
+            const extraido = JSON.parse(jsonClean);
+
+            dadosEscaneados.unshift({
+                id: Date.now(),
+                data: extraido.data || new Date().toLocaleDateString('pt-BR'),
+                investido: parseFloat(extraido.valor) || 0,
+                lucro: (extraido.valor * (extraido.taxa / 100) * extraido.dias),
+                prazo: extraido.dias || 1
+            });
+
+            renderScanner();
+        } catch (e) { 
+            console.error(e);
+            Swal.fire("Erro na IA", "Não consegui ler o comprovante. Verifique a chave da API ou a imagem.", "error"); 
+        } finally { 
+            loading.style.display = 'none'; 
+            input.value = ""; 
+        }
+    }
+
+    // --- LÓGICA DE NEGÓCIO ---
     function adicionarManual() {
         const p = parseFloat(document.getElementById('inp-p').value) || 0;
         const i = parseFloat(document.getElementById('inp-i').value) || 0;
         const n = parseInt(document.getElementById('inp-n').value) || 1;
-        
         if(p <= 0) return;
 
-        // Se não escolheu data no calendário, usa hoje
         const dataUsar = dataInicioManual || new Date().toLocaleDateString('pt-BR');
-
-        dadosFinanceiros.unshift({ 
-            id: Date.now(), 
-            valor: p, 
-            lucro: p * (i/100) * n, 
-            data: dataUsar, 
-            prazo: n, 
-            recebido: false 
-        });
-
-        salvar();
+        dadosFinanceiros.unshift({ id: Date.now(), valor: p, lucro: p * (i/100) * n, data: dataUsar, prazo: n, recebido: false });
         
-        // Reset campos
-        document.getElementById('inp-p').value = "";
-        document.getElementById('inp-i').value = "";
-        document.getElementById('inp-n').value = "1";
-        document.getElementById('display-data').innerText = "HOJE";
-        dataInicioManual = "";
+        salvar();
+        document.getElementById('inp-p').value = ""; document.getElementById('inp-i').value = ""; document.getElementById('inp-n').value = "1";
+        document.getElementById('display-data').innerText = "HOJE"; dataInicioManual = "";
         document.getElementById('cal-box').classList.remove('selected');
     }
-
-    // --- RESTANTE DO CÓDIGO (ESTÁVEL) ---
-    let currentUser = "";
-    let dadosFinanceiros = [];
-    let dadosEscaneados = [];
-    let saldoCofre = 0;
 
     function handleLogin() {
         const u = document.getElementById('userField').value.trim().toLowerCase();
@@ -202,10 +243,7 @@
     }
 
     function mudarConta() { localStorage.removeItem('finance_session'); location.reload(); }
-
-    function zerarSaldoColetado() {
-        Swal.fire({ title: 'Zerar?', icon: 'warning', showCancelButton: true }).then(r => { if(r.isConfirmed){ saldoCofre = 0; salvar(); }});
-    }
+    function zerarSaldoColetado() { Swal.fire({ title: 'Zerar?', icon: 'warning', showCancelButton: true }).then(r => { if(r.isConfirmed){ saldoCofre = 0; salvar(); }}); }
 
     function switchTab(tab) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -214,55 +252,15 @@
         if(event) event.currentTarget.classList.add('active');
     }
 
-    async function processarIA(input) {
-        if (!input.files[0]) return;
-        const loading = document.getElementById('loading');
-        loading.style.display = 'block';
-        try {
-            const worker = await Tesseract.createWorker();
-            await worker.loadLanguage('por');
-            await worker.initialize('por');
-            const { data: { text } } = await worker.recognize(input.files[0]);
-            // (Logica de extração simplificada para brevidade, mantendo a anterior)
-            await worker.terminate();
-            renderScanner();
-        } catch (e) { Swal.fire("Erro IA", "Falha na leitura", "error"); } finally { loading.style.display = 'none'; }
-    }
-
-    function removerScan(id) { dadosEscaneados = dadosEscaneados.filter(i => i.id !== id); renderScanner(); }
-
+    // --- RENDERIZAÇÃO ---
     function renderScanner() {
         document.getElementById('btn-lancar-ia').style.display = dadosEscaneados.length > 0 ? 'block' : 'none';
         document.getElementById('lista-ia').innerHTML = dadosEscaneados.map(item => `
             <div class="card" style="border-left:4px solid var(--blue)">
                 <button class="btn-del" onclick="removerScan(${item.id})">&times;</button>
                 <small>${item.data}</small><br>
-                <b>R$ ${item.investido.toFixed(2)}</b> -> <b style="color:var(--neon)">R$ ${item.lucro.toFixed(2)}</b>
+                <b>R$ ${item.investido.toFixed(2)}</b> -> <b style="color:var(--neon)">Lucro R$ ${item.lucro.toFixed(2)}</b>
             </div>`).join('');
-    }
-
-    function lancarEscaneados() {
-        dadosEscaneados.forEach(i => dadosFinanceiros.unshift({ ...i, valor: i.investido, recebido: false }));
-        dadosEscaneados = []; salvar(); renderScanner(); switchTab('financeiro');
-    }
-
-    function marcarRecebido(id) {
-        const item = dadosFinanceiros.find(d => d.id === id);
-        if(item && !item.recebido) { item.recebido = true; saldoCofre += item.lucro; salvar(); }
-    }
-
-    function remover(id) { dadosFinanceiros = dadosFinanceiros.filter(d => d.id !== id); salvar(); }
-
-    function salvar() {
-        localStorage.setItem(currentUser + '_dados', JSON.stringify(dadosFinanceiros));
-        localStorage.setItem(currentUser + '_cofre', saldoCofre);
-        renderFinanceiro();
-    }
-
-    function carregarTudo() {
-        dadosFinanceiros = JSON.parse(localStorage.getItem(currentUser + '_dados')) || [];
-        saldoCofre = parseFloat(localStorage.getItem(currentUser + '_cofre')) || 0;
-        renderFinanceiro();
     }
 
     function renderFinanceiro() {
@@ -284,6 +282,31 @@
         document.getElementById('label-carteira').innerText = f(saldoCofre);
         document.getElementById('label-lucro').innerText = f(pLucro);
         document.getElementById('label-inv').innerText = f(pInv);
+    }
+
+    // --- PERSISTÊNCIA ---
+    function salvar() {
+        localStorage.setItem(currentUser + '_dados', JSON.stringify(dadosFinanceiros));
+        localStorage.setItem(currentUser + '_cofre', saldoCofre);
+        renderFinanceiro();
+    }
+
+    function carregarTudo() {
+        dadosFinanceiros = JSON.parse(localStorage.getItem(currentUser + '_dados')) || [];
+        saldoCofre = parseFloat(localStorage.getItem(currentUser + '_cofre')) || 0;
+        renderFinanceiro();
+    }
+
+    function marcarRecebido(id) {
+        const item = dadosFinanceiros.find(d => d.id === id);
+        if(item && !item.recebido) { item.recebido = true; saldoCofre += item.lucro; salvar(); }
+    }
+
+    function remover(id) { dadosFinanceiros = dadosFinanceiros.filter(d => d.id !== id); salvar(); }
+    function removerScan(id) { dadosEscaneados = dadosEscaneados.filter(i => i.id !== id); renderScanner(); }
+    function lancarEscaneados() {
+        dadosEscaneados.forEach(i => dadosFinanceiros.unshift({ ...i, valor: i.investido, recebido: false }));
+        dadosEscaneados = []; salvar(); renderScanner(); switchTab('financeiro');
     }
 
     window.onload = () => {

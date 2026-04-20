@@ -53,50 +53,23 @@
         .input-box label { display: block; font-size: 9px; color: #888; margin-bottom: 4px; }
         .input-box input { width: 100%; background: transparent; border: none; color: white; outline: none; }
 
-        .scanner-btn { background: #121212; border: 2px dashed #333; border-radius: 20px; padding: 30px 10px; text-align: center; cursor: pointer; margin-bottom: 15px; }
-        .loading-box { display: none; margin-top: 15px; color: var(--blue); font-weight: bold; font-size: 0.8rem; }
-        .btn-lancar { background: var(--neon); color: #000; border: none; padding: 15px; width: 100%; border-radius: 12px; font-weight: bold; margin-bottom: 15px; display: none; }
-
         .hist-item { background: #1a1a1a; padding: 15px; border-radius: 15px; margin-bottom: 12px; border: 1px solid #333; position: relative; border-left: 5px solid #ffaa00; }
-        .btn-del { position: absolute; right: 10px; top: 10px; color: var(--red); background: none; border: none; font-size: 20px; cursor: pointer; }
+        .btn-del { position: absolute; right: 10px; top: 10px; color: var(--red); background: none; border: none; font-size: 18px; cursor: pointer; padding: 5px; }
         .btn-check { width: 100%; margin-top: 10px; padding: 10px; border-radius: 8px; border: 1px solid var(--neon); background: transparent; color: var(--neon); font-weight: bold; cursor: pointer; }
         
         .date-badge { display: inline-block; background: rgba(0, 212, 255, 0.1); color: var(--blue); padding: 4px 8px; border-radius: 6px; font-size: 11px; margin-top: 8px; font-weight: bold; border: 1px solid rgba(0, 212, 255, 0.2); }
 
-        /* --- ESTILOS DO CHAT IA --- */
-        #chat-widget-button {
-            position: fixed; bottom: 20px; right: 20px;
-            width: 55px; height: 55px; background: var(--neon);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4); cursor: pointer; z-index: 10000;
-        }
-        #chat-container {
-            position: fixed; bottom: 85px; right: 20px;
-            width: 320px; height: 400px; background: #0a0a0a;
-            border: 1px solid var(--border); border-radius: 20px;
-            display: none; flex-direction: column; z-index: 10000;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8); overflow: hidden;
-        }
-        #chat-header { 
-            background: #111; padding: 12px; border-bottom: 1px solid var(--border); 
-            font-weight: bold; color: var(--neon); font-size: 13px; display: flex; justify-content: space-between;
-        }
-        #chat-messages { 
-            flex: 1; padding: 15px; overflow-y: auto; display: flex; 
-            flex-direction: column; gap: 10px; font-size: 13px; background: #050505;
-        }
-        .msg { padding: 8px 12px; border-radius: 12px; max-width: 85%; line-height: 1.4; }
-        .msg.user { background: var(--blue); color: #000; align-self: flex-end; font-weight: 500; }
+        /* WIDGET CHAT IA */
+        #chat-widget-button { position: fixed; bottom: 20px; right: 20px; width: 55px; height: 55px; background: var(--neon); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(0, 255, 136, 0.4); cursor: pointer; z-index: 10000; }
+        #chat-container { position: fixed; bottom: 85px; right: 20px; width: 320px; height: 400px; background: #0a0a0a; border: 1px solid var(--border); border-radius: 20px; display: none; flex-direction: column; z-index: 10000; box-shadow: 0 10px 30px rgba(0,0,0,0.8); overflow: hidden; }
+        #chat-header { background: #111; padding: 12px; border-bottom: 1px solid var(--border); font-weight: bold; color: var(--neon); font-size: 13px; display: flex; justify-content: space-between; }
+        #chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 13px; background: #050505; }
+        .msg { padding: 8px 12px; border-radius: 12px; max-width: 85%; }
+        .msg.user { background: var(--blue); color: #000; align-self: flex-end; }
         .msg.ai { background: #1a1a1a; color: #fff; align-self: flex-start; border: 1px solid var(--border); }
         #chat-input-area { padding: 10px; display: flex; gap: 8px; background: #111; border-top: 1px solid var(--border); }
-        #chat-input-area input { 
-            flex: 1; background: #000; border: 1px solid #333; color: #fff; 
-            padding: 8px 12px; border-radius: 8px; outline: none; font-size: 14px;
-        }
-        #chat-input-area button { 
-            background: var(--neon); border: none; padding: 8px 15px; 
-            border-radius: 8px; cursor: pointer; font-weight: bold;
-        }
+        #chat-input-area input { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 8px; border-radius: 8px; outline: none; }
+        #chat-input-area button { background: var(--neon); border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -115,7 +88,6 @@
         <span class="stat-label" style="color: var(--neon)">Saldo Coletado</span>
         <div id="label-carteira" style="font-size: 24px; font-weight: 900; color: #fff; margin: 5px 0;">R$ 0,00</div>
         <button class="btn-zerar" onclick="zerarSaldoColetado()">ZERAR SALDO COLETADO</button>
-
         <div style="display:flex; gap:10px; justify-content:center; margin-top:15px">
             <div class="stat-label">Investido: <span id="label-inv" style="color:var(--blue)">R$ 0,00</span></div>
             <div class="stat-label">Pendente: <span id="label-lucro" style="color:#ffaa00">R$ 0,00</span></div>
@@ -130,57 +102,45 @@
 <div class="container" id="app-content" style="display:none">
     <div id="view-financeiro" class="view active">
         <div class="card">
+            <div class="input-box"><label>DATA DO INVESTIMENTO</label><input type="date" id="inp-date"></div>
             <div class="input-box"><label>VALOR (R$)</label><input type="number" id="inp-p" placeholder="0.00"></div>
             <div class="input-box"><label>TAXA (%)</label><input type="number" id="inp-i" placeholder="0"></div>
             <div class="input-box"><label>DIAS</label><input type="number" id="inp-n" value="1"></div>
-            <button class="btn-save" onclick="adicionarManual()" style="width:100%; padding:15px; border-radius:12px; background:var(--neon); border:none; font-weight:bold;">LANÇAR MANUAL</button>
+            <button onclick="adicionarManual()" style="width:100%; padding:15px; border-radius:12px; background:var(--neon); border:none; font-weight:bold; cursor:pointer;">LANÇAR MANUAL</button>
         </div>
         <div id="lista-financeiro"></div>
     </div>
-
-    <div id="view-scanner" class="view">
-        <div class="scanner-btn" onclick="document.getElementById('file-input').click()">
-            <span style="font-size: 2rem;">📸</span><br>
-            <b style="color: var(--blue);">ESCANEAR COMPROVANTE</b>
-            <input type="file" id="file-input" accept="image/*" hidden onchange="processarIA(this)">
-            <div id="loading" class="loading-box">🤖 IA ANALISANDO...</div>
-        </div>
-        <button id="btn-lancar-ia" class="btn-lancar" onclick="lancarEscaneados()">🚀 LANÇAR TUDO NO FINANCEIRO</button>
-        <div id="lista-ia"></div>
     </div>
-</div>
 
-<div id="chat-widget-button" onclick="toggleChat()">
-    <i class="fas fa-robot" style="font-size: 24px; color: #000;"></i>
-</div>
-
+<div id="chat-widget-button" onclick="toggleChat()"><i class="fas fa-robot" style="color:#000"></i></div>
 <div id="chat-container">
-    <div id="chat-header">
-        <span><i class="fas fa-brain"></i> FINANCE PRO IA</span>
-        <i class="fas fa-times" onclick="toggleChat()" style="cursor:pointer; opacity:0.5"></i>
-    </div>
-    <div id="chat-messages">
-        <div class="msg ai">Olá! Sou a inteligência do Finance PRO. Como posso ajudar com sua conta hoje?</div>
-    </div>
+    <div id="chat-header"><span>IA FINANCEIRA</span><i class="fas fa-times" onclick="toggleChat()" style="cursor:pointer"></i></div>
+    <div id="chat-messages"></div>
     <div id="chat-input-area">
-        <input type="text" id="chat-input" placeholder="Pergunte à IA...">
+        <input type="text" id="chat-input" placeholder="Pergunte algo...">
         <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
     </div>
 </div>
 
 <script>
-    // --- VARIÁVEIS GLOBAIS ---
     let currentUser = "";
     let dadosFinanceiros = [];
-    let dadosEscaneados = [];
     let saldoCofre = 0;
-    const GEMINI_API_KEY = "AIzaSyA9ngrkG2hY2O8hYuJfOBBFQcUa_2878TE";
+    const API_KEY = "AIzaSyA9ngrkG2hY2O8hYuJfOBBFQcUa_2878TE";
 
-    // --- LÓGICA DE INTERFACE E LOGIN ---
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js').catch(err => console.log('Erro no SW', err));
-        });
+    // Inicializar data de hoje no input
+    document.getElementById('inp-date').valueAsDate = new Date();
+
+    function formatarDataRecebimento(dataStr, dias) {
+        try {
+            // Formato esperado: YYYY-MM-DD ou DD/MM/YYYY
+            let partes = dataStr.includes('-') ? dataStr.split('-') : dataStr.split('/');
+            let data = dataStr.includes('-') ? new Date(partes[0], partes[1] - 1, partes[2]) : new Date(partes[2], partes[1] - 1, partes[0]);
+            
+            data.setDate(data.getDate() + parseInt(dias));
+            const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+            return `${diasSemana[data.getDay()]}, ${data.getDate().toString().padStart(2, '0')}/${(data.getMonth() + 1).toString().padStart(2, '0')}`;
+        } catch(e) { return "Data inválida"; }
     }
 
     function handleLogin() {
@@ -194,35 +154,45 @@
         carregarTudo();
     }
 
-    function switchTab(tab) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('view-' + tab).classList.add('active');
-        if(event) event.currentTarget.classList.add('active');
-    }
-
-    // --- FUNÇÕES FINANCEIRAS ---
-    function formatarDataRecebimento(dataStr, dias) {
-        try {
-            let partes = dataStr.split('/');
-            let data = new Date(partes[2], partes[1] - 1, partes[0]);
-            data.setDate(data.getDate() + parseInt(dias));
-            const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-            return `${diasSemana[data.getDay()]}, ${data.getDate().toString().padStart(2, '0')}/${(data.getMonth() + 1).toString().padStart(2, '0')}`;
-        } catch(e) { return "Data inválida"; }
-    }
-
     function adicionarManual() {
+        const dataInv = document.getElementById('inp-date').value;
         const p = parseFloat(document.getElementById('inp-p').value) || 0;
         const i = parseFloat(document.getElementById('inp-i').value) || 0;
         const n = parseInt(document.getElementById('inp-n').value) || 1;
-        if(p <= 0) return;
+        
+        if(p <= 0 || !dataInv) return;
+
+        // Converter YYYY-MM-DD para DD/MM/YYYY para o padrão do seu app
+        const dataFormatada = dataInv.split('-').reverse().join('/');
+
         dadosFinanceiros.unshift({
-            id: Date.now(), valor: p, lucro: p * (i/100) * n,
-            data: new Date().toLocaleDateString('pt-BR'), prazo: n, recebido: false
+            id: Date.now(),
+            valor: p,
+            lucro: p * (i/100) * n,
+            data: dataFormatada,
+            prazo: n,
+            recebido: false
         });
         salvar();
         document.getElementById('inp-p').value = "";
+    }
+
+    function removerComConfirmacao(id) {
+        Swal.fire({
+            title: 'Excluir Investimento?',
+            text: "Esta ação não pode ser desfeita!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ff3e3e',
+            cancelButtonColor: '#333',
+            confirmButtonText: 'Sim, excluir',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                dadosFinanceiros = dadosFinanceiros.filter(d => d.id !== id);
+                salvar();
+            }
+        });
     }
 
     function marcarRecebido(id) {
@@ -231,18 +201,7 @@
             item.recebido = true;
             saldoCofre += item.lucro;
             salvar();
-            Swal.fire({ icon: 'success', title: 'Lucro coletado!', showConfirmButton: false, timer: 1000 });
         }
-    }
-
-    function zerarSaldoColetado() {
-        Swal.fire({ title: 'Zerar Saldo?', text: "Deseja limpar o cofre?", icon: 'warning', showCancelButton: true, confirmButtonColor: '#ff3e3e', confirmButtonText: 'Sim' })
-        .then((result) => { if (result.isConfirmed) { saldoCofre = 0; salvar(); } });
-    }
-
-    function remover(id) {
-        dadosFinanceiros = dadosFinanceiros.filter(d => d.id !== id);
-        salvar();
     }
 
     function salvar() {
@@ -260,71 +219,29 @@
     function renderFinanceiro() {
         const f = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         let pLucro = 0, pInv = 0;
+
         document.getElementById('lista-financeiro').innerHTML = dadosFinanceiros.map(item => {
             if(!item.recebido) { pLucro += item.lucro; pInv += item.valor; }
-            const previsaoExtenso = formatarDataRecebimento(item.data, item.prazo || 1);
+            const previsaoExtenso = formatarDataRecebimento(item.data, item.prazo);
+
             return `
                 <div class="hist-item" style="border-left-color: ${item.recebido ? 'var(--neon)' : '#ffaa00'}">
-                    <button class="btn-del" onclick="remover(${item.id})">&times;</button>
-                    <small style="color:${item.recebido ? 'var(--neon)' : '#ffaa00'}">${item.recebido ? '● RECEBIDO' : '● EM OPERAÇÃO'}</small><br>
+                    <button class="btn-del" onclick="removerComConfirmacao(${item.id})"><i class="fas fa-times"></i></button>
                     <small>${item.data} (${item.prazo} dias)</small><br>
                     <b>Aporte: ${f(item.valor)}</b> | <b style="color:var(--neon)">+ ${f(item.lucro)}</b><br>
                     ${!item.recebido ? `
-                        <div class="date-badge"><i class="far fa-calendar-check"></i> Receber: ${previsaoExtenso}</div>
+                        <div class="date-badge"><i class="far fa-calendar-alt"></i> Libera em: ${previsaoExtenso}</div>
                         <button class="btn-check" onclick="marcarRecebido(${item.id})">COLETAR LUCRO</button>
-                    ` : '<div class="date-badge" style="background:rgba(0,255,136,0.1); color:var(--neon); border-color:rgba(0,255,136,0.2)">CONCLUÍDO</div>'}
+                    ` : '<div class="date-badge" style="color:var(--neon)">CONCLUÍDO</div>'}
                 </div>`;
         }).join('');
+
         document.getElementById('label-carteira').innerText = f(saldoCofre);
         document.getElementById('label-lucro').innerText = f(pLucro);
         document.getElementById('label-inv').innerText = f(pInv);
     }
 
-    // --- LÓGICA DO SCANNER IA (TESSERACT) ---
-    async function processarIA(input) {
-        if (!input.files || !input.files[0]) return;
-        const loading = document.getElementById('loading');
-        loading.style.display = 'block';
-        try {
-            const worker = await Tesseract.createWorker();
-            await worker.loadLanguage('por');
-            await worker.initialize('por');
-            const { data: { text } } = await worker.recognize(input.files[0]);
-            const cleanText = text.replace(/\s+/g, ' ');
-            const valores = [...cleanText.matchAll(/BRL\s?(\d+[\.,]\d{2})/gi)].map(m => parseFloat(m[1].replace(',', '.')));
-            for (let i = 0; i < valores.length; i += 2) {
-                if (valores[i] && valores[i+1]) {
-                    dadosEscaneados.push({
-                        id: Date.now() + i, investido: valores[i], lucro: valores[i+1],
-                        prazo: 1, data: new Date().toLocaleDateString('pt-BR'),
-                        previsao: formatarDataRecebimento(new Date().toLocaleDateString('pt-BR'), 1)
-                    });
-                }
-            }
-            await worker.terminate();
-            renderScanner();
-        } catch (e) { Swal.fire("Erro", "Erro ao ler imagem", "error"); }
-        finally { loading.style.display = 'none'; }
-    }
-
-    function renderScanner() {
-        document.getElementById('btn-lancar-ia').style.display = dadosEscaneados.length > 0 ? 'block' : 'none';
-        document.getElementById('lista-ia').innerHTML = dadosEscaneados.map(item => `
-            <div class="card" style="border-left:4px solid var(--blue)">
-                <b>Investido: R$ ${item.investido.toFixed(2)}</b><br>
-                <b style="color:var(--neon)">Lucro: R$ ${item.lucro.toFixed(2)}</b>
-            </div>`).join('');
-    }
-
-    function lancarEscaneados() {
-        dadosEscaneados.forEach(item => {
-            dadosFinanceiros.unshift({ id: item.id, valor: item.investido, lucro: item.lucro, data: item.data, prazo: item.prazo, recebido: false });
-        });
-        dadosEscaneados = [];
-        salvar(); renderScanner(); switchTab('financeiro');
-    }
-
-    // --- LÓGICA DO CHAT IA (GEMINI) ---
+    // LÓGICA DO CHAT CORRIGIDA
     function toggleChat() {
         const chat = document.getElementById('chat-container');
         chat.style.display = chat.style.display === 'flex' ? 'none' : 'flex';
@@ -340,30 +257,29 @@
         input.value = "";
         container.scrollTop = container.scrollHeight;
 
-        const resumo = {
-            saldo: saldoCofre,
-            investido: dadosFinanceiros.reduce((acc, i) => !i.recebido ? acc + i.valor : acc, 0),
-            pendente: dadosFinanceiros.reduce((acc, i) => !i.recebido ? acc + i.lucro : acc, 0)
-        };
-
         try {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+            const resumo = `Saldo: ${saldoCofre}, Investido: ${dadosFinanceiros.length} itens.`;
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: `Você é o assistente do Finance PRO. Dados do usuário: Saldo R$${resumo.saldo}, Investido R$${resumo.investido}, Pendente R$${resumo.pendente}. Responda de forma curta a: ${text}` }] }]
+                    contents: [{ parts: [{ text: `Você é o suporte do Finance PRO. Dados: ${resumo}. Responda de forma curta a: ${text}` }] }]
                 })
             });
-            const data = await res.json();
-            const respostaIA = data.candidates[0].content.parts[0].text;
-            container.innerHTML += `<div class="msg ai">${respostaIA}</div>`;
+            const data = await response.json();
+            const aiText = data.candidates[0].content.parts[0].text;
+            container.innerHTML += `<div class="msg ai">${aiText}</div>`;
         } catch (e) {
-            container.innerHTML += `<div class="msg ai" style="color:var(--red)">Erro de conexão.</div>`;
+            container.innerHTML += `<div class="msg ai">Erro ao responder. Tente novamente.</div>`;
         }
         container.scrollTop = container.scrollHeight;
     }
 
-    document.getElementById('chat-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
+    function switchTab(tab) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('view-' + tab).classList.add('active');
+    }
 
     window.onload = () => {
         const s = localStorage.getItem('finance_session');

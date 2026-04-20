@@ -12,6 +12,7 @@
     <link rel="apple-touch-icon" href="icon.png">
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://unpkg.com/tesseract.js@v4.0.1/dist/tesseract.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { 
@@ -38,7 +39,7 @@
         .view { display: none; }
         .view.active { display: block; }
 
-        .wallet-card { background: linear-gradient(135deg, #111 0%, #050505 100%); padding: 20px; border-radius: 15px; border: 1px solid var(--neon); text-align: center; margin-bottom: 15px; position: relative; }
+        .wallet-card { background: linear-gradient(135deg, #111 0%, #050505 100%); padding: 20px; border-radius: 15px; border: 1px solid var(--neon); text-align: center; margin-bottom: 15px; }
         .stat-label { font-size: 9px; color: #888; text-transform: uppercase; font-weight: bold; }
         
         .btn-zerar {
@@ -47,17 +48,10 @@
             margin-top: 10px; cursor: pointer;
         }
 
-        .btn-logout { position: absolute; top: 10px; right: 15px; background: none; border: none; color: #444; font-size: 16px; cursor: pointer; }
-
         .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); }
-        
-        .manual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .input-box { background: #1a1a1a; padding: 10px; border-radius: 12px; border: 1px solid #333; position: relative; }
-        .input-box label { display: block; font-size: 9px; color: #888; margin-bottom: 4px; text-transform: uppercase; }
-        .input-box input { width: 100%; background: transparent; border: none; color: white; outline: none; font-size: 14px; }
-        
-        .calendar-box { display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--blue); }
-        .calendar-box.selected { border-color: var(--blue); background: rgba(0, 212, 255, 0.05); }
+        .input-box { background: #1a1a1a; padding: 10px; border-radius: 12px; border: 1px solid #333; margin-bottom: 10px; }
+        .input-box label { display: block; font-size: 9px; color: #888; margin-bottom: 4px; }
+        .input-box input { width: 100%; background: transparent; border: none; color: white; outline: none; }
 
         .scanner-btn { background: #121212; border: 2px dashed #333; border-radius: 20px; padding: 30px 10px; text-align: center; cursor: pointer; margin-bottom: 15px; }
         .loading-box { display: none; margin-top: 15px; color: var(--blue); font-weight: bold; font-size: 0.8rem; }
@@ -68,6 +62,41 @@
         .btn-check { width: 100%; margin-top: 10px; padding: 10px; border-radius: 8px; border: 1px solid var(--neon); background: transparent; color: var(--neon); font-weight: bold; cursor: pointer; }
         
         .date-badge { display: inline-block; background: rgba(0, 212, 255, 0.1); color: var(--blue); padding: 4px 8px; border-radius: 6px; font-size: 11px; margin-top: 8px; font-weight: bold; border: 1px solid rgba(0, 212, 255, 0.2); }
+
+        /* --- ESTILOS DO CHAT IA --- */
+        #chat-widget-button {
+            position: fixed; bottom: 20px; right: 20px;
+            width: 55px; height: 55px; background: var(--neon);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4); cursor: pointer; z-index: 10000;
+        }
+        #chat-container {
+            position: fixed; bottom: 85px; right: 20px;
+            width: 320px; height: 400px; background: #0a0a0a;
+            border: 1px solid var(--border); border-radius: 20px;
+            display: none; flex-direction: column; z-index: 10000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); overflow: hidden;
+        }
+        #chat-header { 
+            background: #111; padding: 12px; border-bottom: 1px solid var(--border); 
+            font-weight: bold; color: var(--neon); font-size: 13px; display: flex; justify-content: space-between;
+        }
+        #chat-messages { 
+            flex: 1; padding: 15px; overflow-y: auto; display: flex; 
+            flex-direction: column; gap: 10px; font-size: 13px; background: #050505;
+        }
+        .msg { padding: 8px 12px; border-radius: 12px; max-width: 85%; line-height: 1.4; }
+        .msg.user { background: var(--blue); color: #000; align-self: flex-end; font-weight: 500; }
+        .msg.ai { background: #1a1a1a; color: #fff; align-self: flex-start; border: 1px solid var(--border); }
+        #chat-input-area { padding: 10px; display: flex; gap: 8px; background: #111; border-top: 1px solid var(--border); }
+        #chat-input-area input { 
+            flex: 1; background: #000; border: 1px solid #333; color: #fff; 
+            padding: 8px 12px; border-radius: 8px; outline: none; font-size: 14px;
+        }
+        #chat-input-area button { 
+            background: var(--neon); border: none; padding: 8px 15px; 
+            border-radius: 8px; cursor: pointer; font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -83,8 +112,6 @@
 
 <header id="main-header" style="display:none">
     <div class="wallet-card">
-        <button class="btn-logout" onclick="mudarConta()"><i class="fas fa-user-friends"></i></button>
-        
         <span class="stat-label" style="color: var(--neon)">Saldo Coletado</span>
         <div id="label-carteira" style="font-size: 24px; font-weight: 900; color: #fff; margin: 5px 0;">R$ 0,00</div>
         <button class="btn-zerar" onclick="zerarSaldoColetado()">ZERAR SALDO COLETADO</button>
@@ -103,19 +130,10 @@
 <div class="container" id="app-content" style="display:none">
     <div id="view-financeiro" class="view active">
         <div class="card">
-            <div class="manual-grid">
-                <div class="input-box"><label>Valor (R$)</label><input type="number" id="inp-p" placeholder="0.00"></div>
-                <div class="input-box"><label>Taxa (%)</label><input type="number" id="inp-i" placeholder="0"></div>
-                <div class="input-box"><label>Dias</label><input type="number" id="inp-n" value="1"></div>
-                
-                <div class="input-box calendar-box" id="cal-box" onclick="document.getElementById('hidden-date').showPicker()">
-                    <label style="position:absolute; top:10px; left:10px;">Data Início</label>
-                    <i class="fas fa-calendar-day" style="margin-top:12px; font-size: 18px;"></i>
-                    <span id="display-data" style="font-size: 10px; margin-left: 5px; margin-top: 12px; font-weight: bold;">HOJE</span>
-                    <input type="date" id="hidden-date" style="position:absolute; opacity:0; pointer-events:none;" onchange="definirDataInicio(this.value)">
-                </div>
-            </div>
-            <button class="btn-save" onclick="adicionarManual()" style="width:100%; padding:15px; border-radius:12px; background:var(--neon); border:none; font-weight:bold; color:#000;">LANÇAR INVESTIMENTO</button>
+            <div class="input-box"><label>VALOR (R$)</label><input type="number" id="inp-p" placeholder="0.00"></div>
+            <div class="input-box"><label>TAXA (%)</label><input type="number" id="inp-i" placeholder="0"></div>
+            <div class="input-box"><label>DIAS</label><input type="number" id="inp-n" value="1"></div>
+            <button class="btn-save" onclick="adicionarManual()" style="width:100%; padding:15px; border-radius:12px; background:var(--neon); border:none; font-weight:bold;">LANÇAR MANUAL</button>
         </div>
         <div id="lista-financeiro"></div>
     </div>
@@ -132,115 +150,37 @@
     </div>
 </div>
 
+<div id="chat-widget-button" onclick="toggleChat()">
+    <i class="fas fa-robot" style="font-size: 24px; color: #000;"></i>
+</div>
+
+<div id="chat-container">
+    <div id="chat-header">
+        <span><i class="fas fa-brain"></i> FINANCE PRO IA</span>
+        <i class="fas fa-times" onclick="toggleChat()" style="cursor:pointer; opacity:0.5"></i>
+    </div>
+    <div id="chat-messages">
+        <div class="msg ai">Olá! Sou a inteligência do Finance PRO. Como posso ajudar com sua conta hoje?</div>
+    </div>
+    <div id="chat-input-area">
+        <input type="text" id="chat-input" placeholder="Pergunte à IA...">
+        <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+</div>
+
 <script>
-    const GEMINI_API_KEY = "AIzaSyA9ngrkG2hY2O8hYuJfOBBFQcUa_2878TE"; 
-    
-    let dataInicioManual = "";
+    // --- VARIÁVEIS GLOBAIS ---
     let currentUser = "";
     let dadosFinanceiros = [];
     let dadosEscaneados = [];
     let saldoCofre = 0;
+    const GEMINI_API_KEY = "AIzaSyA9ngrkG2hY2O8hYuJfOBBFQcUa_2878TE";
 
-    function definirDataInicio(val) {
-        if(!val) return;
-        const partes = val.split('-');
-        dataInicioManual = `${partes[2]}/${partes[1]}/${partes[0]}`;
-        document.getElementById('display-data').innerText = dataInicioManual;
-        document.getElementById('cal-box').classList.add('selected');
-    }
-
-    function formatarDataRecebimento(dataStr, dias) {
-        try {
-            let partes = dataStr.split('/');
-            let data = new Date(partes[2], partes[1] - 1, partes[0]);
-            data.setDate(data.getDate() + parseInt(dias));
-            const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-            return `${diasSemana[data.getDay()]}, ${data.getDate().toString().padStart(2, '0')}/${(data.getMonth() + 1).toString().padStart(2, '0')}`;
-        } catch(e) { return "Erro data"; }
-    }
-
-    const toBase64 = file => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-    });
-
-    // --- IA CORRIGIDA ---
-    async function processarIA(input) {
-        if (!input.files[0]) return;
-        const loading = document.getElementById('loading');
-        loading.style.display = 'block';
-
-        try {
-            const file = input.files[0];
-            const base64Data = await toBase64(file);
-            const pureBase64 = base64Data.split(',')[1];
-
-            // Usando v1beta e o modelo Flash que é mais compatível com leitura de imagem
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [
-                            { text: "Existem vários registros financeiros nesta imagem (tabelas azuis). Extraia TODOS. Para cada um, pegue: valor BRL (numero), lucro diário % (taxa), quantidade de dias e a data. Retorne APENAS um array JSON puro: [{\"valor\": 0.00, \"taxa\": 0, \"dias\": 0, \"data\": \"\"}]" },
-                            { inline_data: { mime_type: file.type, data: pureBase64 } }
-                        ]
-                    }]
-                })
-            });
-
-            const resData = await response.json();
-            
-            if (resData.error) {
-                throw new Error(resData.error.message);
-            }
-
-            let textResponse = resData.candidates[0].content.parts[0].text;
-            // Limpa o markdown do JSON caso a IA mande
-            textResponse = textResponse.replace(/```json/g, "").replace(/```/g, "").trim();
-            
-            const extraidos = JSON.parse(textResponse);
-
-            // Processa como lista (Array) para suportar múltiplas tabelas na mesma foto
-            if (Array.isArray(extraidos)) {
-                extraidos.forEach(item => {
-                    dadosEscaneados.unshift({
-                        id: Date.now() + Math.random(),
-                        data: item.data || new Date().toLocaleDateString('pt-BR'),
-                        investido: parseFloat(item.valor) || 0,
-                        lucro: (parseFloat(item.valor) * (parseFloat(item.taxa) / 100) * parseInt(item.dias || 1)),
-                        prazo: parseInt(item.dias) || 1
-                    });
-                });
-            }
-
-            renderScanner();
-            Swal.fire("Sucesso!", `${extraidos.length} registros identificados.`, "success");
-
-        } catch (e) { 
-            console.error(e);
-            Swal.fire("Erro na IA", "O Google respondeu: " + e.message, "error"); 
-        } finally { 
-            loading.style.display = 'none'; 
-            input.value = ""; 
-        }
-    }
-
-    function adicionarManual() {
-        const p = parseFloat(document.getElementById('inp-p').value) || 0;
-        const i = parseFloat(document.getElementById('inp-i').value) || 0;
-        const n = parseInt(document.getElementById('inp-n').value) || 1;
-        if(p <= 0) return;
-
-        const dataUsar = dataInicioManual || new Date().toLocaleDateString('pt-BR');
-        dadosFinanceiros.unshift({ id: Date.now(), valor: p, lucro: p * (i/100) * n, data: dataUsar, prazo: n, recebido: false });
-        
-        salvar();
-        document.getElementById('inp-p').value = ""; document.getElementById('inp-i').value = ""; document.getElementById('inp-n').value = "1";
-        document.getElementById('display-data').innerText = "HOJE"; dataInicioManual = "";
-        document.getElementById('cal-box').classList.remove('selected');
+    // --- LÓGICA DE INTERFACE E LOGIN ---
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js').catch(err => console.log('Erro no SW', err));
+        });
     }
 
     function handleLogin() {
@@ -254,9 +194,6 @@
         carregarTudo();
     }
 
-    function mudarConta() { localStorage.removeItem('finance_session'); location.reload(); }
-    function zerarSaldoColetado() { Swal.fire({ title: 'Zerar?', icon: 'warning', showCancelButton: true }).then(r => { if(r.isConfirmed){ saldoCofre = 0; salvar(); }}); }
-
     function switchTab(tab) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -264,35 +201,48 @@
         if(event) event.currentTarget.classList.add('active');
     }
 
-    function renderScanner() {
-        document.getElementById('btn-lancar-ia').style.display = dadosEscaneados.length > 0 ? 'block' : 'none';
-        document.getElementById('lista-ia').innerHTML = dadosEscaneados.map(item => `
-            <div class="card" style="border-left:4px solid var(--blue)">
-                <button class="btn-del" onclick="removerScan(${item.id})">&times;</button>
-                <small>${item.data}</small><br>
-                <b>Aporte: R$ ${item.investido.toFixed(2)}</b> -> <b style="color:var(--neon)">Lucro R$ ${item.lucro.toFixed(2)}</b>
-            </div>`).join('');
+    // --- FUNÇÕES FINANCEIRAS ---
+    function formatarDataRecebimento(dataStr, dias) {
+        try {
+            let partes = dataStr.split('/');
+            let data = new Date(partes[2], partes[1] - 1, partes[0]);
+            data.setDate(data.getDate() + parseInt(dias));
+            const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+            return `${diasSemana[data.getDay()]}, ${data.getDate().toString().padStart(2, '0')}/${(data.getMonth() + 1).toString().padStart(2, '0')}`;
+        } catch(e) { return "Data inválida"; }
     }
 
-    function renderFinanceiro() {
-        const f = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        let pLucro = 0, pInv = 0;
-        document.getElementById('lista-financeiro').innerHTML = dadosFinanceiros.map(item => {
-            if(!item.recebido) { pLucro += item.lucro; pInv += item.valor; }
-            return `
-                <div class="hist-item" style="border-left-color: ${item.recebido ? 'var(--neon)' : '#ffaa00'}">
-                    <button class="btn-del" onclick="remover(${item.id})">&times;</button>
-                    <small>${item.data} (${item.prazo} dias)</small><br>
-                    <b>Aporte: ${f(item.valor)}</b> | <b style="color:var(--neon)">+ ${f(item.lucro)}</b><br>
-                    ${!item.recebido ? `
-                        <div class="date-badge">Receber: ${formatarDataRecebimento(item.data, item.prazo)}</div>
-                        <button class="btn-check" onclick="marcarRecebido(${item.id})">COLETAR LUCRO</button>
-                    ` : '<div class="date-badge" style="color:var(--neon)">CONCLUÍDO</div>'}
-                </div>`;
-        }).join('');
-        document.getElementById('label-carteira').innerText = f(saldoCofre);
-        document.getElementById('label-lucro').innerText = f(pLucro);
-        document.getElementById('label-inv').innerText = f(pInv);
+    function adicionarManual() {
+        const p = parseFloat(document.getElementById('inp-p').value) || 0;
+        const i = parseFloat(document.getElementById('inp-i').value) || 0;
+        const n = parseInt(document.getElementById('inp-n').value) || 1;
+        if(p <= 0) return;
+        dadosFinanceiros.unshift({
+            id: Date.now(), valor: p, lucro: p * (i/100) * n,
+            data: new Date().toLocaleDateString('pt-BR'), prazo: n, recebido: false
+        });
+        salvar();
+        document.getElementById('inp-p').value = "";
+    }
+
+    function marcarRecebido(id) {
+        const item = dadosFinanceiros.find(d => d.id === id);
+        if(item && !item.recebido) {
+            item.recebido = true;
+            saldoCofre += item.lucro;
+            salvar();
+            Swal.fire({ icon: 'success', title: 'Lucro coletado!', showConfirmButton: false, timer: 1000 });
+        }
+    }
+
+    function zerarSaldoColetado() {
+        Swal.fire({ title: 'Zerar Saldo?', text: "Deseja limpar o cofre?", icon: 'warning', showCancelButton: true, confirmButtonColor: '#ff3e3e', confirmButtonText: 'Sim' })
+        .then((result) => { if (result.isConfirmed) { saldoCofre = 0; salvar(); } });
+    }
+
+    function remover(id) {
+        dadosFinanceiros = dadosFinanceiros.filter(d => d.id !== id);
+        salvar();
     }
 
     function salvar() {
@@ -307,17 +257,113 @@
         renderFinanceiro();
     }
 
-    function marcarRecebido(id) {
-        const item = dadosFinanceiros.find(d => d.id === id);
-        if(item && !item.recebido) { item.recebido = true; saldoCofre += item.lucro; salvar(); }
+    function renderFinanceiro() {
+        const f = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        let pLucro = 0, pInv = 0;
+        document.getElementById('lista-financeiro').innerHTML = dadosFinanceiros.map(item => {
+            if(!item.recebido) { pLucro += item.lucro; pInv += item.valor; }
+            const previsaoExtenso = formatarDataRecebimento(item.data, item.prazo || 1);
+            return `
+                <div class="hist-item" style="border-left-color: ${item.recebido ? 'var(--neon)' : '#ffaa00'}">
+                    <button class="btn-del" onclick="remover(${item.id})">&times;</button>
+                    <small style="color:${item.recebido ? 'var(--neon)' : '#ffaa00'}">${item.recebido ? '● RECEBIDO' : '● EM OPERAÇÃO'}</small><br>
+                    <small>${item.data} (${item.prazo} dias)</small><br>
+                    <b>Aporte: ${f(item.valor)}</b> | <b style="color:var(--neon)">+ ${f(item.lucro)}</b><br>
+                    ${!item.recebido ? `
+                        <div class="date-badge"><i class="far fa-calendar-check"></i> Receber: ${previsaoExtenso}</div>
+                        <button class="btn-check" onclick="marcarRecebido(${item.id})">COLETAR LUCRO</button>
+                    ` : '<div class="date-badge" style="background:rgba(0,255,136,0.1); color:var(--neon); border-color:rgba(0,255,136,0.2)">CONCLUÍDO</div>'}
+                </div>`;
+        }).join('');
+        document.getElementById('label-carteira').innerText = f(saldoCofre);
+        document.getElementById('label-lucro').innerText = f(pLucro);
+        document.getElementById('label-inv').innerText = f(pInv);
     }
 
-    function remover(id) { dadosFinanceiros = dadosFinanceiros.filter(d => d.id !== id); salvar(); }
-    function removerScan(id) { dadosEscaneados = dadosEscaneados.filter(i => i.id !== id); renderScanner(); }
-    function lancarEscaneados() {
-        dadosEscaneados.forEach(i => dadosFinanceiros.unshift({ ...i, valor: i.investido, recebido: false }));
-        dadosEscaneados = []; salvar(); renderScanner(); switchTab('financeiro');
+    // --- LÓGICA DO SCANNER IA (TESSERACT) ---
+    async function processarIA(input) {
+        if (!input.files || !input.files[0]) return;
+        const loading = document.getElementById('loading');
+        loading.style.display = 'block';
+        try {
+            const worker = await Tesseract.createWorker();
+            await worker.loadLanguage('por');
+            await worker.initialize('por');
+            const { data: { text } } = await worker.recognize(input.files[0]);
+            const cleanText = text.replace(/\s+/g, ' ');
+            const valores = [...cleanText.matchAll(/BRL\s?(\d+[\.,]\d{2})/gi)].map(m => parseFloat(m[1].replace(',', '.')));
+            for (let i = 0; i < valores.length; i += 2) {
+                if (valores[i] && valores[i+1]) {
+                    dadosEscaneados.push({
+                        id: Date.now() + i, investido: valores[i], lucro: valores[i+1],
+                        prazo: 1, data: new Date().toLocaleDateString('pt-BR'),
+                        previsao: formatarDataRecebimento(new Date().toLocaleDateString('pt-BR'), 1)
+                    });
+                }
+            }
+            await worker.terminate();
+            renderScanner();
+        } catch (e) { Swal.fire("Erro", "Erro ao ler imagem", "error"); }
+        finally { loading.style.display = 'none'; }
     }
+
+    function renderScanner() {
+        document.getElementById('btn-lancar-ia').style.display = dadosEscaneados.length > 0 ? 'block' : 'none';
+        document.getElementById('lista-ia').innerHTML = dadosEscaneados.map(item => `
+            <div class="card" style="border-left:4px solid var(--blue)">
+                <b>Investido: R$ ${item.investido.toFixed(2)}</b><br>
+                <b style="color:var(--neon)">Lucro: R$ ${item.lucro.toFixed(2)}</b>
+            </div>`).join('');
+    }
+
+    function lancarEscaneados() {
+        dadosEscaneados.forEach(item => {
+            dadosFinanceiros.unshift({ id: item.id, valor: item.investido, lucro: item.lucro, data: item.data, prazo: item.prazo, recebido: false });
+        });
+        dadosEscaneados = [];
+        salvar(); renderScanner(); switchTab('financeiro');
+    }
+
+    // --- LÓGICA DO CHAT IA (GEMINI) ---
+    function toggleChat() {
+        const chat = document.getElementById('chat-container');
+        chat.style.display = chat.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('chat-input');
+        const container = document.getElementById('chat-messages');
+        const text = input.value.trim();
+        if (!text) return;
+
+        container.innerHTML += `<div class="msg user">${text}</div>`;
+        input.value = "";
+        container.scrollTop = container.scrollHeight;
+
+        const resumo = {
+            saldo: saldoCofre,
+            investido: dadosFinanceiros.reduce((acc, i) => !i.recebido ? acc + i.valor : acc, 0),
+            pendente: dadosFinanceiros.reduce((acc, i) => !i.recebido ? acc + i.lucro : acc, 0)
+        };
+
+        try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: `Você é o assistente do Finance PRO. Dados do usuário: Saldo R$${resumo.saldo}, Investido R$${resumo.investido}, Pendente R$${resumo.pendente}. Responda de forma curta a: ${text}` }] }]
+                })
+            });
+            const data = await res.json();
+            const respostaIA = data.candidates[0].content.parts[0].text;
+            container.innerHTML += `<div class="msg ai">${respostaIA}</div>`;
+        } catch (e) {
+            container.innerHTML += `<div class="msg ai" style="color:var(--red)">Erro de conexão.</div>`;
+        }
+        container.scrollTop = container.scrollHeight;
+    }
+
+    document.getElementById('chat-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
 
     window.onload = () => {
         const s = localStorage.getItem('finance_session');
